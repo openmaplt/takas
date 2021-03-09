@@ -1,0 +1,26 @@
+{
+  "name": "takas",
+  "version": "0.4.0",
+  "description": "Maršruto planavimas",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build-dev": "webpack --mode development",
+    "start": "webpack serve --mode development",
+    "build": "webpack --mode production"
+  },
+  "keywords": [],
+  "author": "Atvirasis žemėlapis",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^5.1.1",
+    "style-loader": "^2.0.0",
+    "webpack": "^5.24.3",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "@mapbox/mapbox-gl-draw": "^1.2.2",
+    "mapbox-gl": "^1.13.1"
+  }
+}

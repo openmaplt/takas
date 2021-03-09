@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Takas - maršrutų planavimo priemonė</title>
+  <script src='togeojson.js'></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css' rel='stylesheet' />
+</head>
+<body>
+  <div id="map"></div>
+  <div id='i_version'></div>
+  <div id="sw"><img id="i_base_img" src="map_orto.png"></div>
+  <div id="i_prideti_taska" class="mygtukas">Pridėti tašką</div>
+  <div id="i_prideti_marsruta" class="mygtukas">Pridėti maršrutą</div>
+  <div id="i_savybes">
+  <p><b>Taško <span id="i_elementas"></span> savybės</b></p>
+  <p>Pavadinimas: <input type="text" id="i_pavadinimas"></p>
+  <p>Tipas: <select type="text" id="i_tipas"></select></p>
+  <p>Gentis: <select type="text" id="i_gentis"></select></p>
+  <p>Kraštas: <select type="text" id="i_krastas"></select></p>
+  <p>Išorė, vaizdingumas: <select type="text" id="i_vaizdingumas"></select></p>
+  <p>Archeologinė reikšmė: <select type="text" id="i_arch_reiksme"></select></p>
+  <p>Mitologinė reikšmė: <select type="text" id="i_mito_reiksme"></select></p>
+  <p>Istorinė reikšmė: <select type="text" id="i_ist_reiksme"></select></p>
+  <p>Visuomeninė reikšmė: <select type="text" id="i_vis_reiksme"></select></p>
+  <p>Tyrimų duomenys: <select type="text" id="i_tyrimu_duomenys"></select></p>
+  <p>Pritaikymas lankymui: <select type="text" id="i_pritaikymas_lankymui"></select></p>
+  <p>KVR kodas: <input type="text" id="i_kvr_numeris"></p>
+  <p>Pastabos: <textarea id="i_pastabos"></textarea></p>
+  <p><span id="i_irasyti" class="mygt">Įrašyti</span>
+  <span id="i_istrinti" class="mygt">Ištrinti</span>
+  <span id="i_perkelti" class="mygt">Perkelti</span>
+  <span id="i_uzdaryti" class="mygt">Uždaryti</span>
+  </p>
+  </div>
+  <div id="i_marsrutas">
+  <p style="margin-top: 1px; margin-bottom: 1px;">Pavadinimas: <input type="text" id="i_marsruto_pavadinimas"></p>
+  <p><span id="i_url"></span><a id="i_download_geojson" class="mygt mygtm material-icons" href="geojson.php?id=5" download="test.geojson" target="other">download</a></p>
+  <div id="i_marsruto_taskai">
+  <i>Maršrutas tuščias. Parinkite lankytinas veitas arba spauskite ant žemėlapio, kad sukurtumėte tarpinius taškus</i>
+  <p>Arba: <span id="i_ikelti_marsruta" class="mygt">Įkelti maršrutą</span></p>
+  </div>
+  <div><span id="i_prideti_tarpini_taska" class="mygt">Pridėti tarpinį tašką</span>
+  <span id="i_irasyti_marsruta" class="mygt">Įrašyti</span>
+  </div>
+  </div>
+  </div>
+  <div id="i_tasko_koordinates">
+  <p>Ilguma: <input type="text" id="i_lon"></p>
+  <p>Platuma: <input type="text" id="i_lat"></p>
+  <p>Tipas: <select type="text" id="i_koordinaciu_tipas" value="4326">
+  <option value="4326">WGS84</option>
+  <option value="3346">LKS94</option>
+  </select></p>
+  <p><span id="i_koordinates_prideti" class="mygt">Pridėti tašką</span>
+  <span id="i_koordinates_nutraukti" class="mygt">Nutraukti</span></p>
+  </div>
+  <div id="i_marsrutu_sarasas">
+  </div>
+  <div id="i_keisti_pavadinima">
+  <p>Pavadinimas:</p>
+  <p><input type="text" id="i_keisti_pavadinima_tekstas"></p>
+  <p><span id="i_change_route_point_name" class="mygt">Pakeisti</span></p>
+  </div>
+  <div id="i_settings_dialog">
+  <div id="i_settings_icons"></div>
+  <div id="i_settings_colours"></div>
+  <p><span id="i_settings_accept" class="mygt">Nustatyti</span>
+  <span id="i_settings_cancel" class="mygt">Nutraukti</span></p>
+  </div>
+  <div id="i_dialogas">
+  <div id="i_dialogo_tekstas"></div>
+  <div style="line-height: 4em;"><span id="i_dialogo_mygtukas1" class="mygt"></span><span id="i_dialogo_mygtukas2" class="mygt"></span></div>
+  </div>
+  <script src="main.js"></script>
+</body>
+</html>

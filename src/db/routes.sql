@@ -11,5 +11,7 @@ create table routes (
   pastabos text,
   marsrutas text,
   taskai text,
+  offroad text,
+  deleted timestamp without time zone,
   uuid_value uuid default uuid_generate_v4()
 );

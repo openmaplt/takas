@@ -116,8 +116,57 @@ function getIcon(pIconId, pColour) {
   return markers[pIconId].replaceAll('#colour', pColour);
 } // getIcon
   function setUrl(uuid) {
-    i_url.innerHTML = '<small>https://dev.openmap.lt/vykintokeliai/marsrutas.html?uuid=' + uuid + '</small>';
+    i_url.innerHTML = '<small>TODO.marsrutas.html?uuid=' + uuid + '</small>';
   } // setUrl
+  function addPointLayer() {
+    var dummySource = map.getSource('taskai-src');
+    if (typeof dummySource == 'undefined') {
+      map.addSource('taskai-src', { 'type': 'geojson', 'data': urlTaskai });
+    }
+    map.addLayer({
+      'id': 'taskai',
+      'type': 'circle',
+      'source': 'taskai-src',
+      'paint': {
+        'circle-color': '#22dd22',
+        'circle-radius': {
+          'stops': [[11, 1], [16, 5]]
+        },
+        'circle-stroke-color': '#222222',
+        'circle-stroke-width': {
+          'stops': [[11, 0], [16, 1]]
+        }
+      }
+    });
+    map.addLayer({
+      'id': 'taskai-label',
+      'type': 'symbol',
+      'source': 'taskai-src',
+      'layout': {
+        'text-field': '{pavadinimas}',
+        'text-font': ['Roboto Condensed Italic'],
+        'text-size': 12,
+        'text-variable-anchor': ['left','top','bottom','right'],
+        'text-radial-offset': 0.7,
+        'text-justify': 'auto',
+        'text-padding': 1
+      },
+      'paint': {
+        'text-color': '#333333',
+        'text-halo-width': 1,
+        'text-halo-color': "rgba(255, 255, 255, 0.9)"
+      }
+    });
+    map.on('click', 'taskai', paspaustasTaskas);
+    map.on('mouseenter', 'taskai', function () { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', 'taskai', function () {
+      if (creatingPoint) {
+        map.getCanvas().style.cursor = 'crosshair';
+      } else {
+        map.getCanvas().style.cursor = '';
+      }
+    });
+}
   function runApp() {
     setTimeout(function() {
       draw = new MapboxDraw({
@@ -273,9 +322,10 @@ function getIcon(pIconId, pColour) {
       i_base_img.src = 'map_topo.png';
     }
     orto = !orto;
-    /*if (geojson) {
-      var dummy = setTimeout(addGeoJson, 100);
-    }*/
+    if (kuriamMarsruta) {
+      var dummy = setTimeout(addGeoJson, 500);
+    }
+    var dummy = setTimeout(addPointLayer, 600);
   }
   var marsrutasGeojson = {"type":"FeatureCollection",
    "features":[
@@ -1019,7 +1069,7 @@ function getIcon(pIconId, pColour) {
     postData.append('pavadinimas', i_marsruto_pavadinimas.value);
     postData.append('marsrutas', JSON.stringify(marsrutasGeojson));
     postData.append('taskai', JSON.stringify(marsrutas));
-    postData.append('bekele', JSON.stringify(offroad));
+    postData.append('offroad', JSON.stringify(offroad));
     postData.append('id', marsrutoId);
     fetch(phpBase + 'save_route.php', { method: 'POST', body: postData })
       .then(response => response.json())
@@ -1120,8 +1170,8 @@ function getIcon(pIconId, pColour) {
         .then(data => {
           marsrutasGeojson = JSON.parse(data.marsrutas);
           marsrutas = JSON.parse(data.taskai);
-          if (data.bekele) {
-            offroad = JSON.parse(data.bekele);
+          if (data.offroad) {
+            offroad = JSON.parse(data.offroad);
           } else {
             offroad = [];
           }

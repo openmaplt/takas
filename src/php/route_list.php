@@ -1,7 +1,7 @@
 <?php
 $config = require './config.php';
 $link = pg_connect(vsprintf('host=%s port=%u dbname=%s user=%s password=%s', $config['resource']['db']));
-$query = "SELECT id, pavadinimas FROM routes WHERE istrintas is null ORDER BY pavadinimas";
+$query = "SELECT id, pavadinimas FROM routes WHERE deleted is null ORDER BY pavadinimas";
 $res = pg_query($link, $query);
 $marsrutai = array();
 while ($row = pg_fetch_assoc($res)) {

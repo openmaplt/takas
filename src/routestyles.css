@@ -1,0 +1,19 @@
+body { margin:0; padding:0; }
+#map { position:absolute; top:0; bottom:0; width:100%; }
+#sw { position:absolute; bottom:5px; right:5px; width: 100px; height: 70px; border: 1px solid black; }
+.mygt { background: #33cc33; border-radius: 5px; margin: 5px; cursor: pointer; padding: 10px; }
+#i_pavadinimas { position: absolute; top: 9px; left: 50px; background: white; border-radius: 5px; padding: 10px; border: 1px solid lightgray; }
+#i_versija { position: absolute; left: 4px; bottom: 21px; z-index: 1; font-size: xx-small; }
+.taskuZymeklis { width: 100px; }
+.taskuEtiketes { text-shadow: -1px 0px white,
+                              -1px -1px white,
+                              -1px 1px white,
+                               0px -1px white,
+                               0px 1px white,
+                               1px 1px white,
+                               1px 0px white,
+                               1px -1px white;
+                width: 100px;
+                text-align: center;
+                color: black;
+}

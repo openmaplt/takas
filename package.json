@@ -1,7 +1,8 @@
 {
   "name": "takas",
   "version": "0.4.0",
-  "description": "Maršruto planavimas",
+  "version_r": "0.3.0",
+  "description": "Maršruto planavimo ir publikavimo priemonė",
   "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,7 +12,7 @@
   },
   "keywords": [],
   "author": "Atvirasis žemėlapis",
-  "license": "ISC",
+  "license": "MIT License",
   "devDependencies": {
     "css-loader": "^5.1.1",
     "style-loader": "^2.0.0",

@@ -67,9 +67,9 @@ setTimeout(function() {
 };
 function switchTo(m) {
 map.setStyle(m + '.json');
-mapData.type = m;
+/*mapData.type = m;
 mapData.id = null;
-changeHashUrl(mapData);
+changeHashUrl(mapData);*/
 }
 function switchBase() {
 if (orto) {

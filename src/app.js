@@ -3,6 +3,9 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import './styles.css';
 import {version} from '../package.json';
 import { initMap, switchTo, map } from './map.js';
+import { loginScreen } from './login.js';
+
+loginScreen(addPointLayer);
 
 i_version.innerHTML = version;
 var phpBase = 'php/';
@@ -56,59 +59,62 @@ i_base_img.onclick = switchBase;
 function getIcon(pIconId, pColour) {
   return markers[pIconId].replaceAll('#colour', pColour);
 } // getIcon
-  function setUrl(uuid) {
-    i_url.innerHTML = '<small>' + window.location.protocol + '//' +
-      window.location.host.toString() + '/route.html?uuid=' + uuid + '</small>';
-  } // setUrl
-  function addPointLayer() {
-    var dummySource = map.getSource('taskai-src');
-    if (typeof dummySource == 'undefined') {
-      map.addSource('taskai-src', { 'type': 'geojson', 'data': urlTaskai });
-    }
-    map.addLayer({
-      'id': 'taskai',
-      'type': 'circle',
-      'source': 'taskai-src',
-      'paint': {
-        'circle-color': '#22dd22',
-        'circle-radius': {
-          'stops': [[11, 1], [16, 5]]
-        },
-        'circle-stroke-color': '#222222',
-        'circle-stroke-width': {
-          'stops': [[11, 0], [16, 1]]
-        }
-      }
-    });
-    map.addLayer({
-      'id': 'taskai-label',
-      'type': 'symbol',
-      'source': 'taskai-src',
-      'layout': {
-        'text-field': '{pavadinimas}',
-        'text-font': ['Roboto Condensed Italic'],
-        'text-size': 12,
-        'text-variable-anchor': ['left','top','bottom','right'],
-        'text-radial-offset': 0.7,
-        'text-justify': 'auto',
-        'text-padding': 1
+
+function setUrl(uuid) {
+  i_url.innerHTML = '<small>' + window.location.protocol + '//' +
+    window.location.host.toString() + '/route.html?uuid=' + uuid + '</small>';
+} // setUrl
+
+function addPointLayer() {
+  var dummySource = map.getSource('taskai-src');
+  if (typeof dummySource == 'undefined') {
+    map.addSource('taskai-src', { 'type': 'geojson', 'data': urlTaskai });
+  }
+  map.addLayer({
+    'id': 'taskai',
+    'type': 'circle',
+    'source': 'taskai-src',
+    'paint': {
+      'circle-color': '#22dd22',
+      'circle-radius': {
+        'stops': [[11, 1], [16, 5]]
       },
-      'paint': {
-        'text-color': '#333333',
-        'text-halo-width': 1,
-        'text-halo-color': "rgba(255, 255, 255, 0.9)"
+      'circle-stroke-color': '#222222',
+      'circle-stroke-width': {
+        'stops': [[11, 0], [16, 1]]
       }
-    });
-    map.on('click', 'taskai', paspaustasTaskas);
-    map.on('mouseenter', 'taskai', function () { map.getCanvas().style.cursor = 'pointer'; });
-    map.on('mouseleave', 'taskai', function () {
-      if (creatingPoint) {
-        map.getCanvas().style.cursor = 'crosshair';
-      } else {
-        map.getCanvas().style.cursor = '';
-      }
-    });
-}
+    }
+  });
+  map.addLayer({
+    'id': 'taskai-label',
+    'type': 'symbol',
+    'source': 'taskai-src',
+    'layout': {
+      'text-field': '{pavadinimas}',
+      'text-font': ['Roboto Condensed Italic'],
+      'text-size': 12,
+      'text-variable-anchor': ['left','top','bottom','right'],
+      'text-radial-offset': 0.7,
+      'text-justify': 'auto',
+      'text-padding': 1
+    },
+    'paint': {
+      'text-color': '#333333',
+      'text-halo-width': 1,
+      'text-halo-color': "rgba(255, 255, 255, 0.9)"
+    }
+  });
+  map.on('click', 'taskai', paspaustasTaskas);
+  map.on('mouseenter', 'taskai', function () { map.getCanvas().style.cursor = 'pointer'; });
+  map.on('mouseleave', 'taskai', function () {
+    if (creatingPoint) {
+      map.getCanvas().style.cursor = 'crosshair';
+    } else {
+      map.getCanvas().style.cursor = '';
+    }
+  });
+} // addPointLayer
+
   function runApp() {
     setTimeout(function() {
       draw = new MapboxDraw({
@@ -188,51 +194,6 @@ function getIcon(pIconId, pColour) {
         ]
       });
       map.on('draw.selectionchange', drawSelectionchange);
-      map.addControl(draw);
-      map.addSource('taskai-src', { 'type': 'geojson', 'data': urlTaskai });
-      map.addLayer({
-        'id': 'taskai',
-        'type': 'circle',
-        'source': 'taskai-src',
-        'paint': {
-          'circle-color': '#22dd22',
-          'circle-radius': {
-            'stops': [[11, 1], [16, 5]]
-          },
-          'circle-stroke-color': '#222222',
-          'circle-stroke-width': {
-            'stops': [[11, 0], [16, 1]]
-          }
-        }
-      });
-      map.addLayer({
-        'id': 'taskai-label',
-        'type': 'symbol',
-        'source': 'taskai-src',
-        'layout': {
-          'text-field': '{pavadinimas}',
-          'text-font': ['Roboto Condensed Italic'],
-          'text-size': 12,
-          'text-variable-anchor': ['left','top','bottom','right'],
-          'text-radial-offset': 0.7,
-          'text-justify': 'auto',
-          'text-padding': 1
-        },
-        'paint': {
-          'text-color': '#333333',
-          'text-halo-width': 1,
-          'text-halo-color': "rgba(255, 255, 255, 0.9)"
-        }
-      });
-      map.on('click', 'taskai', paspaustasTaskas);
-      map.on('mouseenter', 'taskai', function () { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'taskai', function () {
-        if (creatingPoint) {
-          map.getCanvas().style.cursor = 'crosshair';
-        } else {
-          map.getCanvas().style.cursor = '';
-        }
-      });
       uzpildytiKlasifikatoriu(i_tipas, 'tipas');
       uzpildytiKlasifikatoriu(i_gentis, 'gentis');
       uzpildytiKlasifikatoriu(i_krastas, 'krastas');

@@ -1,4 +1,3 @@
-drop table if exists routes;
 create table routes (
   id serial primary key,
   pavadinimas text,
@@ -13,5 +12,6 @@ create table routes (
   taskai text,
   offroad text,
   deleted timestamp without time zone,
-  uuid_value uuid default uuid_generate_v4()
+  uuid_value uuid default uuid_generate_v4(),
+  userid int
 );

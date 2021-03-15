@@ -5,8 +5,8 @@ l_id int = -1;
 begin
   for c in (select id
               from users
-             where user = p_user
-               and hash = sha256('e=C4Y/mP2!q*' || p_password || 'Ufal#X#oI@60')) loop
+             where name = p_user
+               and hash = ph(p_password)) loop
     l_id = c.id;
   end loop;
   return l_id;

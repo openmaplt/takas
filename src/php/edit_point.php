@@ -1,4 +1,5 @@
 <?php
+session_start();
 if (isset($_POST['id']) && isset($_POST['pavadinimas'])) {
   $config = require './config.php';
   $link = pg_connect(vsprintf('host=%s port=%u dbname=%s user=%s password=%s', $config['resource']['db']));
@@ -15,7 +16,8 @@ if (isset($_POST['id']) && isset($_POST['pavadinimas'])) {
                               pritaikymas_lankymui = case when $11 = 0 then null else $11 end,
                               kvr_numeris = case when $12 = 0 then null else $12 end,
                               pastabos = $13::text
-                        where id = $14";
+                        where id = $14
+                          and userid = $15";
   $res = pg_query_params($link, $query, array(
     $_POST['pavadinimas'],          // 1
     $_POST['tipas'],                // 2
@@ -30,6 +32,8 @@ if (isset($_POST['id']) && isset($_POST['pavadinimas'])) {
     $_POST['pritaikymas_lankymui'], // 11
     $_POST['kvr_numeris'],          // 12
     $_POST['pastabos'],             // 13
-    $_POST['id']));                 // 14
+    $_POST['id'],                   // 14
+    $_SESSION['userid']             // 15
+  ));
 }
 ?>

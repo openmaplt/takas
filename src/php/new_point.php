@@ -1,9 +1,19 @@
 <?php
+session_start();
 if (isset($_GET['lat']) && isset($_GET['lon']) && isset($_GET['crc'])) {
   $config = require './config.php';
   $link = pg_connect(vsprintf('host=%s port=%u dbname=%s user=%s password=%s', $config['resource']['db']));
-  $query = "INSERT INTO points (geom) values (ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), $3::int), 4326))";
-  $res = pg_query_params($link, $query, array($_GET['lon'], $_GET['lat'], $_GET['crc']));
+  $query = "INSERT INTO points (geom, userid)
+                 values (ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), $3::int), 4326), $4)";
+  $res = pg_query_params($link, $query, array(
+    $_GET['lon'],
+    $_GET['lat'],
+    $_GET['crc'],
+    $_SESSION['userid']
+  ));
+
+  // If coordinates were provided not in WebMercator (4326) - do a
+  // transformation so that webapp could navigate to a point position.
   $lat = 0;
   $lon = 0;
   if ($_GET['crc'] != 4326) {

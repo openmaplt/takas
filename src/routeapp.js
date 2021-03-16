@@ -1,10 +1,10 @@
 import mapboxgl from '!mapbox-gl';
 import './routestyles.css';
-import {version_r} from '../package.json';
+import {version} from '../package.json';
 import { initMap, switchTo, map } from './map.js';
 import { getIcon } from './markers.js';
 
-i_version.innerHTML = version_r;
+i_version.innerHTML = version;
 i_base_img.onclick = switchBase;
 var orto = false;
 var uuid;

@@ -121,7 +121,6 @@ function mouseLeavePoints() {
 
 function createDraw() {
   if (typeof draw === 'undefined') {
-console.log('creating draw');
     draw = new MapboxDraw({
       displayControlsDefault: false,
       clickBuffer: 5,
@@ -200,8 +199,6 @@ console.log('creating draw');
     });
     map.addControl(draw);
     map.on('draw.selectionchange', drawSelectionchange);
-  } else {
-    console.log('draw has already been created');
   }
 } // createDraw
   function runApp() {
@@ -719,11 +716,7 @@ console.log('creating draw');
       marsrutasGeojson.features = [];
       var atkarpa;
       var atkarpaPoints = [];
-      console.log('a');
-      console.log(draw.getAll());
-      console.log('b');
       draw.getAll().features.forEach(el => {
-        console.log('-');
         offroad[el.id] = el;
       });
       draw.deleteAll();

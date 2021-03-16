@@ -1,4 +1,5 @@
 <?php
+session_start();
 $config = require './config.php';
 $link = pg_connect(vsprintf('host=%s port=%u dbname=%s user=%s password=%s', $config['resource']['db']));
 $query = "SELECT json_build_object(
@@ -40,9 +41,11 @@ $query = "SELECT json_build_object(
                         ,coalesce(pritaikymas_lankymui, 0) pritaikymas_lankymui
                         ,coalesce(kvr_numeris, 0) kvr_numeris
                         ,pastabos
-                    FROM points) inputs) features";
+                    FROM points
+                   WHERE userid = $1
+                  ) inputs) features";
 
-$res = pg_query($link, $query);
+$res = pg_query_params($link, $query, array($_SESSION['userid']));
 $row = pg_fetch_assoc($res);
 
 echo $row["f"];

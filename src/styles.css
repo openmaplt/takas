@@ -46,3 +46,9 @@ body { margin:0; padding:0; }
   background: #ffffffee;
   z-index: 2;
 }
+.login-content {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+#i_loading { position: absolute; top: 50px; left: 50px; display: none; background: yellow; padding: 20px; }

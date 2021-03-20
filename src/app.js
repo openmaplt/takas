@@ -562,6 +562,7 @@ function createDraw() {
   function updateRoute() {
     var poz = '';
     var count = 0;
+    i_loading.style.display = 'block';
     i_marsruto_taskai.innerHTML = '';
     var marsrutoLentele = document.createElement('table');
     marsrutoLentele.classList.add('marsrutoLentele');
@@ -739,7 +740,10 @@ function createDraw() {
       });
       if (issiustaUzklausu == 0) {
         addGeoJson();
+        i_loading.style.display = 'none';
       }
+    } else {
+      i_loading.style.display = 'none';
     }
   }
   var settingsIdx;
@@ -882,6 +886,7 @@ function createDraw() {
           if (issiustaUzklausu == 0) {
             addGeoJson();
             document.getElementById('distance' + (marsrutas.length - 1)).innerHTML = Math.round(totalDistance*10)/10 + ' km';
+            i_loading.style.display = 'none';
           }
         });
     } else {

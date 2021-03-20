@@ -1,6 +1,6 @@
 {
   "name": "takas",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Maršruto planavimo ir publikavimo priemonė",
   "private": true,
   "scripts": {

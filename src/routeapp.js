@@ -1,8 +1,9 @@
 import mapboxgl from '!mapbox-gl';
 import './routestyles.css';
-import {version} from '../package.json';
 import { initMap, switchTo, map } from './map.js';
 import { getIcon } from './markers.js';
+import packagej from '../package.json';
+const { version } = packagej;
 
 i_version.innerHTML = version;
 i_base_img.onclick = switchBase;

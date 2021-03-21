@@ -1,10 +1,11 @@
 import mapboxgl from '!mapbox-gl';
 import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import './styles.css';
-import {version} from '../package.json';
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
 import { getIcon } from './markers.js';
+import packagej from '../package.json';
+const { version } = packagej;
 
 loginScreen(init);
 

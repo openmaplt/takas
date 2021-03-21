@@ -1,4 +1,5 @@
-import {version} from '../package.json';
+import packagej from '../package.json';
+const { version } = packagej;
 
 var successCallback;
 var hash;

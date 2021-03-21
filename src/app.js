@@ -6,7 +6,7 @@ import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
 import { getIcon } from './markers.js';
 
-loginScreen(addPointLayer);
+loginScreen(init);
 
 i_version.innerHTML = version;
 var phpBase = 'php/';
@@ -32,27 +32,61 @@ colours.forEach(el => {
   i_settings_colours.appendChild(colour);
 });
 
-if (!mapboxgl.supported()) {
-  alert('Jūsų naršyklė nepalaiko Mapbox GL. Prašome atsinaujinti naršyklę.');
-} else {
-  initMap(runApp);
-}
-
-i_prideti_taska.onclick = pridetiTaska;
-i_prideti_marsruta.onclick = pridetiMarsruta;
 i_irasyti.onclick  = irasytiTaska;
 i_istrinti.onclick = istrintiTaska;
 i_perkelti.onclick = perkeltiTaska;
 i_uzdaryti.onclick = uzdarytiTaska;
 i_koordinates_prideti.onclick = koordinatesPrideti;
 i_koordinates_nutraukti.onclick = koordinatesNutraukti;
-i_irasyti_marsruta.onclick = irasytiMarsruta;
-i_ikelti_marsruta.onclick = marsrutuSarasas;
-i_prideti_tarpini_taska.onclick = pridetiTarpiniTaska;
 i_settings_accept.onclick = actionSettingsAccept;
 i_settings_cancel.onclick = actionSettingsCancel;
 i_change_route_point_name.onclick = actionChangeRoutePointName;
 i_base_img.onclick = switchBase;
+
+function init() {
+  console.log('initialising map');
+  if (!mapboxgl.supported()) {
+    alert('Jūsų naršyklė nepalaiko Mapbox GL. Prašome atsinaujinti naršyklę.');
+  } else {
+    initMap(runApp);
+    controlInitial();
+  }
+} // init
+
+function controlInitial() {
+  var buttonAddPoint = document.createElement('div');
+  buttonAddPoint.id = 'i_prideti_taska';
+  buttonAddPoint.classList.add('mygt');
+  buttonAddPoint.onclick = pridetiTaska;
+  buttonAddPoint.innerHTML = 'Pridėti tašką';
+  var buttonAddRoute = document.createElement('div');
+  buttonAddRoute.id = 'i_prideti_marsruta';
+  buttonAddRoute.classList.add('mygt');
+  buttonAddRoute.onclick = pridetiMarsruta;
+  buttonAddRoute.innerHTML = 'Pridėti maršrutą';
+  i_control.innerHTML = '';
+  i_control.appendChild(buttonAddPoint);
+  i_control.appendChild(buttonAddRoute);
+} // controlInitial
+
+function controlRoute() {
+  var route = document.createElement('div');
+  route.id = 'i_marsrutas';
+  route.innerHTML =
+  '<p style="margin-top: 1px; margin-bottom: 1px;">Pavadinimas: <input type="text" id="i_marsruto_pavadinimas"></p>'+
+  '<p><span id="i_url"></span><a id="i_download_geojson" class="mygt mygtm material-icons" href="geojson.php?id=5" download="test.geojson" target="other">download</a></p>'+
+  '<div id="i_marsruto_taskai">'+
+  '<i>Maršrutas tuščias. Parinkite lankytinas veitas arba spauskite ant žemėlapio, kad sukurtumėte tarpinius taškus</i>'+
+  '<p>Arba: <span id="i_ikelti_marsruta" class="mygt">Įkelti maršrutą</span></p>'+
+  '</div>'+
+  '<div><span id="i_prideti_tarpini_taska" class="mygt">Pridėti tarpinį tašką</span>'+
+  '<span id="i_irasyti_marsruta" class="mygt">Įrašyti</span>'+
+  '</div>';
+  i_control.appendChild(route);
+  i_ikelti_marsruta.onclick = marsrutuSarasas;
+  i_irasyti_marsruta.onclick = irasytiMarsruta;
+  i_prideti_tarpini_taska.onclick = pridetiTarpiniTaska;
+} // controlRoute()
 
 function setUrl(uuid) {
   i_url.innerHTML = '<small>' + window.location.protocol + '//' +
@@ -213,6 +247,7 @@ function createDraw() {
       uzpildytiKlasifikatoriu(i_vis_reiksme, 'vis_reiksme');
       uzpildytiKlasifikatoriu(i_tyrimu_duomenys, 'tyrimu_duomenys');
       uzpildytiKlasifikatoriu(i_pritaikymas_lankymui, 'pritaikymas');
+      addPointLayer();
     }, 1000);
   }
   function drawSelectionchange(e) {
@@ -438,6 +473,7 @@ function createDraw() {
   function pridetiMarsruta() {
     createDraw();
     if (!kuriamMarsruta) {
+      controlRoute();
       marsrutoId = 0;
       kuriamMarsruta = true;
       i_prideti_marsruta.innerHTML = 'Išjungti maršrutą';
@@ -449,8 +485,8 @@ function createDraw() {
       offroad = [];
       i_marsruto_pavadinimas.value = '';
     } else {
+      controlInitial();
       map.off('click', pridetiPozicija);
-      i_marsrutas.style.display = 'none';
       kuriamMarsruta = false;
       i_prideti_marsruta.innerHTML = 'Pridėti maršrutą';
       i_prideti_taska.style.display = 'block';
@@ -461,8 +497,6 @@ function createDraw() {
       addGeoJson();
       draw.deleteAll();
       map.getCanvas().style.cursor = '';
-      i_marsruto_taskai.innerHTML = '<i>Maršrutas tuščias. Parinkite lankytinas veitas arba spauskite ant žemėlapio, kad sukurtumėte tarpinius taškus</i><p>Arba: <span id="i_ikelti_marsruta" class="mygt">Įkelti maršrutą</span></p>';
-      i_ikelti_marsruta.onclick = marsrutuSarasas;
     }
   }
   var zymekliai = [];
@@ -564,11 +598,18 @@ function createDraw() {
     var count = 0;
     i_loading.style.display = 'block';
     i_marsruto_taskai.innerHTML = '';
-    var marsrutoLentele = document.createElement('table');
-    marsrutoLentele.classList.add('marsrutoLentele');
+    var marsrutoLentele = document.createElement('div');
+    //marsrutoLentele.classList.add('marsrutoLentele');
     marsrutas.forEach((el, idx) => {
-      var marsrutoTaskas = document.createElement('tr');
-      var tekstas = document.createElement('td');
+      var marsrutoTaskas = document.createElement('div');
+      marsrutoTaskas.classList.add('marsrutoTaskas');
+      marsrutoTaskas.setAttribute('draggable', true);
+      marsrutoTaskas.setAttribute('targetId', idx);
+      marsrutoTaskas.ondragstart = eventDragStart;
+      marsrutoTaskas.ondrop = eventDrop;
+      marsrutoTaskas.ondragover = eventDragOver;
+
+      var firstLine = document.createElement('div');
   
       // add button to zoom to point position on the map
       var bGoTo = document.createElement('span');
@@ -578,12 +619,12 @@ function createDraw() {
       bGoTo.classList.add('mygtm');
       bGoTo.setAttribute('idx', idx);
       bGoTo.onclick = actionGoToPoint;
-      tekstas.appendChild(bGoTo);
+      firstLine.appendChild(bGoTo);
   
       // add point name
       var name = document.createElement('span');
       name.innerHTML = el.pavadinimas;
-      tekstas.appendChild(name);
+      firstLine.appendChild(name);
   
       if (el.tipas == 1) {
         var myg = document.createElement('span');
@@ -593,39 +634,16 @@ function createDraw() {
         myg.classList.add('mygtm');
         myg.setAttribute('idx', idx);
         myg.onclick = keistiMarsrutoTaskoPavadinima;
-        tekstas.appendChild(myg);
+        firstLine.appendChild(myg);
       }
-      marsrutoTaskas.appendChild(tekstas);
+      marsrutoTaskas.appendChild(firstLine);
   
-      var aukstynZemyn = document.createElement('td');
-      aukstynZemyn.setAttribute('style', 'text-align: center');
-      var trinti = document.createElement('td');
-      var transportoTipas = document.createElement('td');
-      if (idx > 0) {
-        var mygtukas = document.createElement('span');
-        //mygtukas.innerHTML = 'Aukštyn';
-        mygtukas.innerHTML = 'keyboard_arrow_up';
-        mygtukas.classList.add('material-icons');
-        mygtukas.classList.add('mygt');
-        mygtukas.classList.add('mygtm');
-        mygtukas.setAttribute('idx', idx);
-        mygtukas.onclick = marsrutoMygtukasAukstyn;
-        aukstynZemyn.appendChild(mygtukas);
-      }
+      var secondLine = document.createElement('div');
+      var transportoTipas = document.createElement('span');
       if (idx < marsrutas.length - 1) {
         var mygtukas = document.createElement('span');
-        //mygtukas.innerHTML = 'Žemyn';
-        mygtukas.innerHTML = 'keyboard_arrow_down';
-        mygtukas.classList.add('material-icons');
-        mygtukas.classList.add('mygt');
-        mygtukas.classList.add('mygtm');
-        mygtukas.setAttribute('idx', idx);
-        mygtukas.onclick = marsrutoMygtukasZemyn;
-        aukstynZemyn.appendChild(mygtukas);
-  
-        mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'pesciomis';
-        mygtukas.innerHTML = 'Pėsčiomis';
+        mygtukas.innerHTML = 'Pės';
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'foot') {
@@ -640,7 +658,7 @@ function createDraw() {
   
         mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'dviraciu';
-        mygtukas.innerHTML = 'Dviračiu';
+        mygtukas.innerHTML = 'Dvi';
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'bike') {
@@ -655,7 +673,7 @@ function createDraw() {
   
         mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'masina';
-        mygtukas.innerHTML = 'Mašina';
+        mygtukas.innerHTML = 'Maš';
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'car') {
@@ -670,7 +688,7 @@ function createDraw() {
   
         mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'bekele';
-        mygtukas.innerHTML = 'Bekele';
+        mygtukas.innerHTML = 'Bek';
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'offroad') {
@@ -683,6 +701,8 @@ function createDraw() {
         mygtukas.onclick = marsrutoTransportas;
         transportoTipas.appendChild(mygtukas);
       }
+      secondLine.appendChild(transportoTipas);
+
       var mygtukasTrinti = document.createElement('span');
       mygtukasTrinti.onclick = trintiMarsrutoTaska;
       mygtukasTrinti.innerHTML = 'delete';
@@ -690,7 +710,7 @@ function createDraw() {
       mygtukasTrinti.classList.add('mygt');
       mygtukasTrinti.classList.add('mygtm');
       mygtukasTrinti.setAttribute('idx', idx);
-      trinti.appendChild(mygtukasTrinti);
+      secondLine.appendChild(mygtukasTrinti);
   
       var buttonSettings = document.createElement('span');
       buttonSettings.onclick = actionPointSettings;
@@ -699,19 +719,33 @@ function createDraw() {
       buttonSettings.classList.add('mygt');
       buttonSettings.classList.add('mygtm');
       buttonSettings.setAttribute('idx', idx);
-      trinti.appendChild(buttonSettings);
+      secondLine.appendChild(buttonSettings);
   
       var distance = document.createElement('span');
       distance.id = 'distance' + idx;
   
-      marsrutoTaskas.appendChild(aukstynZemyn);
-      marsrutoTaskas.appendChild(trinti);
-      marsrutoTaskas.appendChild(transportoTipas);
-      marsrutoTaskas.appendChild(distance);
+      secondLine.appendChild(distance);
+      marsrutoTaskas.appendChild(secondLine);
+
+      var dropPosition = document.createElement('div');
+      dropPosition.id = 'drop' + idx;
+      marsrutoLentele.appendChild(dropPosition);
+
       marsrutoLentele.appendChild(marsrutoTaskas);
       poz += '&point=' + round5(el.lat) + ',' + round5(el.lon);
       count++;
     });
+    var dropPosition = document.createElement('div');
+    dropPosition.id = 'drop' + marsrutas.length;
+    marsrutoLentele.appendChild(dropPosition);
+
+    var emptySlot = document.createElement('div');
+    emptySlot.classList.add('emptySlot');
+    emptySlot.setAttribute('targetId', marsrutas.length);
+    emptySlot.ondrop = eventDrop;
+    emptySlot.ondragover = eventDragOver;
+    marsrutoLentele.appendChild(emptySlot);
+
     i_marsruto_taskai.appendChild(marsrutoLentele);
     if (count > 1) {
       marsrutasGeojson.features = [];
@@ -916,44 +950,11 @@ function createDraw() {
       el.remove();
     });
     zymekliai = [];
+  console.log(marsrutas);
     marsrutas.forEach((el, idx) => {
       var zymeklis = mZymeklis(el.pavadinimas, idx, el.lon, el.lat);
       zymekliai.push(zymeklis);
     });
-  }
-  function marsrutoMygtukasAukstyn(e) {
-    var idx = Number(e.srcElement.getAttribute('idx'));
-  
-    var tmp = marsrutas[idx];
-    marsrutas[idx] = marsrutas[idx-1];
-    marsrutas[idx-1] = tmp;
-  
-    fetchDrawnPaths();
-    idx = idx + 1; // offroad paths are one index up
-    var tmp_offroad = offroad[idx];
-    offroad[idx] = offroad[idx-1];
-    offroad[idx-1] = tmp_offroad;
-    reassignOffroadIds();
-  
-    perkurtiZymeklius();
-    updateRoute();
-  }
-  function marsrutoMygtukasZemyn(e) {
-    var idx = Number(e.srcElement.getAttribute('idx'));
-  
-    var tmp = marsrutas[idx];
-    marsrutas[idx] = marsrutas[idx+1];
-    marsrutas[idx+1] = tmp;
-  
-    fetchDrawnPaths();
-    idx = idx + 1; // offroad paths are one index up
-    var tmp_offroad = offroad[idx];
-    offroad[idx] = offroad[idx-1];
-    offroad[idx-1] = tmp_offroad;
-    reassignOffroadIds();
-  
-    perkurtiZymeklius();
-    updateRoute();
   }
   var switchIdx;
   var switchTransportas;
@@ -1141,4 +1142,78 @@ function createDraw() {
         });
       });
   } // uzpildytiKlasifikatorius
-  
+
+function moveRoutePoint(fromPos, toPos) {
+  console.log('move ' + fromPos + ' to ' + toPos);
+  fetchDrawnPaths();
+  var tmp;
+  var tmp_offroad;
+
+  tmp = marsrutas[fromPos];
+  tmp_offroad = offroad[i+1];
+  if (fromPos < toPos) {
+    for (var i=fromPos; i<toPos; i++) {
+      marsrutas[i] = marsrutas[i+1];
+      offroad[i+1] = offroad[i+2]; // offroad paths are one index up
+    }
+  } else {
+    for (var i=fromPos; i>toPos; i--) {
+      marsrutas[i] = marsrutas[i-1];
+      offroad[i+1] = offroad[i]; // offroad paths are one index up
+    }
+  }
+  marsrutas[toPos] = tmp;
+  offroad[toPos+1] = tmp_offroad;
+
+  reassignOffroadIds();
+  perkurtiZymeklius();
+  updateRoute();
+} // moveRoutePoint
+
+var draggedId = -1;
+var draggedOntoId = -1;
+var dragOverId = -1;
+
+function eventDrop(e) {
+  e.preventDefault();
+  if (e.target.getAttribute('targetId')) {
+    draggedOntoId = Number(e.target.getAttribute('targetId'));
+  } else if (e.target.parentElement.getAttribute('targetId')) {
+    draggedOntoId = Number(e.target.parentElement.getAttribute('targetId'));
+  } else {
+    draggedOntoId = Number(e.target.parentElement.parentElement.getAttribute('targetId'));
+  }
+  var e = document.getElementById('drop'+dragOverId);
+  e.classList.remove('dropPosition');
+  if (draggedId != draggedOntoId) {
+    if (draggedId < draggedOntoId) {
+      if (draggedOntoId - draggedId > 1) {
+        moveRoutePoint(draggedId, draggedOntoId - 1);
+      }
+    } else {
+      moveRoutePoint(draggedId, draggedOntoId);
+    }
+  }
+}
+function eventDragStart(e) {
+  draggedId = Number(e.target.getAttribute('targetId'));
+  dragOverId = 0;
+}
+function eventDragOver(e) {
+  e.preventDefault();
+  var currentDragOverId;
+  if (e.target.getAttribute('targetId')) {
+    currentDragOverId = Number(e.target.getAttribute('targetId'));
+  } else if (e.target.parentElement.getAttribute('targetId')) {
+    currentDragOverId = Number(e.target.parentElement.getAttribute('targetId'));
+  } else {
+    currentDragOverId = Number(e.target.parentElement.parentElement.getAttribute('targetId'));
+  }
+  if (currentDragOverId != dragOverId) {
+    var e = document.getElementById('drop'+dragOverId);
+    e.classList.remove('dropPosition');
+    dragOverId = currentDragOverId;
+    e = document.getElementById('drop'+dragOverId);
+    e.classList.add('dropPosition');
+  }
+}

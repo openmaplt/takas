@@ -111,12 +111,10 @@ function setUrl(uuid) {
 
 var pointListeners = false; // have point listeneres already been created?
 function addPointLayer() {
-console.log('1');
   var dummySource = map.getSource('taskai-src');
   if (typeof dummySource == 'undefined') {
     map.addSource('taskai-src', { 'type': 'geojson', 'data': urlTaskai });
   }
-console.log('2');
   map.addLayer({
     'id': 'taskai',
     'type': 'circle',
@@ -132,7 +130,6 @@ console.log('2');
       }
     }
   });
-console.log('3');
   map.addLayer({
     'id': 'taskai-label',
     'type': 'symbol',
@@ -152,7 +149,6 @@ console.log('3');
       'text-halo-color': "rgba(255, 255, 255, 0.9)"
     }
   });
-console.log('4');
   if (!pointListeners) {
     map.on('click', 'taskai', paspaustasTaskas);
     map.on('mouseenter', 'taskai', mouseEnterPoints);

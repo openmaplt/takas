@@ -1,4 +1,5 @@
-import {version} from '../package.json';
+import packagej from '../package.json';
+const { version } = packagej;
 
 var successCallback;
 var hash;
@@ -12,10 +13,12 @@ function loginScreen(callback) {
   login_content.id = 'i_login_content';
   login.appendChild(login_content);
   document.body.appendChild(login);
+  i_loading.style.display = 'none';
 
   // Check if hash was provided to change password
   if (window.location.hash.length == 37) {
     hash = window.location.hash.substring(1);
+    window.location.hash = '';
     changePassword();
   } else {
     i_login_content.innerHTML = '<p>Maršrutų planavimo sistema</p>' +
@@ -24,6 +27,7 @@ function loginScreen(callback) {
       '<p>Prisijunkite:</p>' +
       '<table style="width:100%"><tr><td style="text-align: right">Vardas:</td><td><input type="text" id="i_username"></td></tr>' +
       '<tr><td style="text-align: right">Slaptažodis:</td><td><input type="password" id="i_password"></td></tr></table>' +
+      '<p id="i_error" class="error_message"></p>' +
       '<p id="i_login" class="mygt">Prisijungti</p>' +
       '<p>Neturite paskyros? - <a href="#" id="i_register">Prisiregistruokite</a>.</p>' +
       '<p>Arba prisijunkite bendra <b>bandymo paskyra</b>:</p>' +
@@ -46,16 +50,16 @@ function actionLoginTest() {
       console.log('Test user connected. Response=' + data.id);
       if (data.id >= 0) {
         successCallback();
+        i_login_screen.remove();
       }
-      i_login_screen.remove();
     });
 } // loginTest
 
 function actionRegisterScreen() {
   i_login_content.innerHTML = '<h1>Registracija</h1>' +
     '<table><tr><td>Naudotojo vardas:</td><td><input type="text" id="i_username"></td></tr>' +
-    '<tr></td>E-paštas:</td><td><input type="text" id="i_email"></td></tr></table>' +
-    '<p style="color: red" id="i_error"></p>' +
+    '<tr><td>E-paštas:</td><td><input type="text" id="i_email"></td></tr></table>' +
+    '<p class="error_message" id="i_error"></p>' +
     '<p id="i_register" class="mygt">Registruotis</p>';
 
   i_register.onclick = actionRegister;
@@ -79,9 +83,9 @@ function actionRegister() {
           '<p>Paspauskite gautą nuorodą, o šį langą galite uždaryti.</p>' +
           '<p><b>Pastaba:</b> jei laiško nematote, paieškokite savo šlamšto aplanke.</p>';
       } else if (data.result == -1) {
-        i_register.innerHTML = 'Registracija nepavyko, toks naudotojas jau yra.';
+        i_error.innerHTML = 'Registracija nepavyko, toks naudotojas jau yra.';
       } else if (data.result == -100) {
-        i_register.innerHTML = 'Registracija nepavyko, dėl nežinomų priežasčių.';
+        i_error.innerHTML = 'Registracija nepavyko, dėl nežinomų priežasčių.';
       }
     });
 } // actionRegister
@@ -92,7 +96,7 @@ function changePassword() {
     '<p>Įveskite savo <b>naują</b> slaptažodį</p>' +
     '<p>Naujas slaptažodis: <input type="password" id="i_password"></p>' +
     '<p>Pakartokite slaptažodį: <input type="password" id="i_password_2"></p>' +
-    '<p id="i_password_status" style="background: red"></p>' +
+    '<p id="i_password_status" class="error_message"></p>' +
     '<p id="i_change_password" class="mygt">Nustatyti slaptažodį</p>';
   // TODO: Enter two passwords and then compare them
   i_change_password.onclick = actionChangePassword;
@@ -133,6 +137,7 @@ function actionChangePassword() {
 } // actionChangePassword
 
 function actionLogin() {
+  i_error.innerHTML = '';
   const postData = new FormData();
   postData.append('user', i_username.value);
   postData.append('pass', i_password.value);
@@ -143,6 +148,8 @@ function actionLogin() {
       if (data.id > 0) {
         i_login_screen.remove();
         successCallback();
+      } else {
+        i_error.innerHTML = 'Neteisingas naudotojo vardas ir/arba slaptažodis';
       }
     });
 } // actionLogin

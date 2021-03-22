@@ -4,7 +4,7 @@ $config = require './config.php';
 $link = pg_connect(vsprintf('host=%s port=%u dbname=%s user=%s password=%s', $config['resource']['db']));
 $query = "SELECT json_build_object(
            'type',     'FeatureCollection',
-           'features', jsonb_agg(features.feature)
+           'features', coalesce(jsonb_agg(features.feature), '[]'::jsonb)
           ) f FROM (
             SELECT json_build_object(
               'type',       'Feature',

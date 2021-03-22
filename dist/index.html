@@ -6,13 +6,15 @@
   <script src='togeojson.js'></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    #i_loading { position: absolute; background: white; width: 100%; height: 100%; z-index: 10; }
+  </style>
 </head>
 <body>
+  <div id="i_loading">Įkeliama...</div>
   <div id="map"></div>
   <div id='i_version'></div>
   <div id="sw"><img id="i_base_img" src="map_orto.png"></div>
-  <div id="i_prideti_taska" class="mygtukas">Pridėti tašką</div>
-  <div id="i_prideti_marsruta" class="mygtukas">Pridėti maršrutą</div>
   <div id="i_savybes">
   <p><b>Taško <span id="i_elementas"></span> savybės</b></p>
   <p>Pavadinimas: <input type="text" id="i_pavadinimas"></p>
@@ -33,18 +35,6 @@
   <span id="i_perkelti" class="mygt">Perkelti</span>
   <span id="i_uzdaryti" class="mygt">Uždaryti</span>
   </p>
-  </div>
-  <div id="i_marsrutas">
-  <p style="margin-top: 1px; margin-bottom: 1px;">Pavadinimas: <input type="text" id="i_marsruto_pavadinimas"></p>
-  <p><span id="i_url"></span><a id="i_download_geojson" class="mygt mygtm material-icons" href="geojson.php?id=5" download="test.geojson" target="other">download</a></p>
-  <div id="i_marsruto_taskai">
-  <i>Maršrutas tuščias. Parinkite lankytinas veitas arba spauskite ant žemėlapio, kad sukurtumėte tarpinius taškus</i>
-  <p>Arba: <span id="i_ikelti_marsruta" class="mygt">Įkelti maršrutą</span></p>
-  </div>
-  <div><span id="i_prideti_tarpini_taska" class="mygt">Pridėti tarpinį tašką</span>
-  <span id="i_irasyti_marsruta" class="mygt">Įrašyti</span>
-  </div>
-  </div>
   </div>
   <div id="i_tasko_koordinates">
   <p>Ilguma: <input type="text" id="i_lon"></p>
@@ -73,7 +63,7 @@
   <div id="i_dialogo_tekstas"></div>
   <div style="line-height: 4em;"><span id="i_dialogo_mygtukas1" class="mygt"></span><span id="i_dialogo_mygtukas2" class="mygt"></span></div>
   </div>
-  <div id="i_loading">Skaičiuojamas maršrutas. Palaukite...</div>
+  <div id="i_control"></div>
   <script src="appbundle.js"></script>
 </body>
 </html>

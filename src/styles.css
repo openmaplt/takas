@@ -1,6 +1,6 @@
 body { margin:0; padding:0; }
-#map { position:absolute; top:0; bottom:0; width:100%; }
-#sw { position:absolute; bottom:5px; right:5px; width: 100px; height: 70px; border: 1px solid black; }
+#map { position:absolute; top:0px; bottom:0px; left: 0px; right: 300px; }
+#sw { position:absolute; bottom:5px; right:305px; width: 100px; height: 70px; border: 1px solid black; }
 .mygt { background: #33cc33; border-radius: 5px; margin: 5px; cursor: pointer; padding: 10px; line-height: 3em; }
 .mygt:hover { background: #44dd44; }
 .mygtm { margin: 2px; padding: 2px; border-radius: 2px; line-height: normal; }
@@ -9,10 +9,8 @@ body { margin:0; padding:0; }
 .mygtcar { background: #dd77dd; }
 .mygtoffroad { background: #4444dd; }
 .mygtisj { background: #999999; }
-.mygtukas { background: white; padding: 5px; position: absolute; cursor: pointer; }
-#i_prideti_taska { top: 10px; right: 10px; }
-#i_prideti_marsruta { top: 50px; right: 10px; }
-#i_savybes, #i_marsrutas { position: absolute; left: 0px; bottom: 35px; background: white; display: none; border: 1px solid lightgray; border-radius: 5px; padding: 5px; font-size: small;}
+/*.mygtukas { background: white; padding: 5px; position: absolute; cursor: pointer; }*/
+#i_savybes { position: absolute; left: 0px; bottom: 35px; background: white; display: none; border: 1px solid lightgray; border-radius: 5px; padding: 5px; font-size: small;}
 #i_version { position: absolute; left: 4px; bottom: 21px; z-index: 1; font-size: xx-small; }
 #i_tasko_koordinates { position: absolute; left: 50px; top: 10px; z-index: 1; background: white; padding: 10px; display: none; }
 #i_marsrutu_sarasas { position: absolute; left: 50px; top: 200px; z-index: 1; background: white; padding: 10px; display: none; }
@@ -37,13 +35,14 @@ body { margin:0; padding:0; }
                 text-align: center;
                 color: black;
 }
+.marsrutoTaskas { border-top: 1px solid black; padding: 2px; margin-bottom: 1px; }
 .marsrutuSarasoElementas { padding-top: 5px; padding-bottom: 5px; }
 .material-icons { font-size: 18px; }
 .login-div {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: #ffffffee;
+  background: #ffffff;
   z-index: 2;
 }
 .login-content {
@@ -51,4 +50,23 @@ body { margin:0; padding:0; }
   margin: 0 auto;
   text-align: center;
 }
-#i_loading { position: absolute; top: 50px; left: 50px; display: none; background: yellow; padding: 20px; }
+#i_control {
+  position: absolute;
+  top: 0px;
+  width: 300px;
+  background: white;
+  right: 0px;
+  height: 100%;
+  overflow-y: scroll;
+}
+.message {
+  position: absolute;
+  top: 10px;
+  left: 50px;
+  background: rgb(255, 255, 93);
+  padding: 20px;
+  border-radius: 5px;
+}
+.emptySlot { border-top: 1px solid black; height: 20px; }
+.dropPosition { height: 5px; background: black; }
+.error_message { color: red; }

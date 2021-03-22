@@ -66,7 +66,9 @@ function storeCookie(name, value) {
   var date = new Date();
   date.setDate(date.getDate() + 365);
   var expires = "expires=" + date.toUTCString();
-  document.cookie = name + '=' + JSON.stringify(value) + ';domain=.' + window.location.host.toString() + ';path=/;' + expires;
+  document.cookie = name + '=' + JSON.stringify(value) +
+    ';path=/;' + expires +
+    ';SameSite=Lax';
 } // storeCookie
   
 function readCookie(name) {

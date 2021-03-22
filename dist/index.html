@@ -6,8 +6,12 @@
   <script src='togeojson.js'></script>
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.13.1/mapbox-gl.css' rel='stylesheet' />
+  <style>
+    #i_loading { position: absolute; background: white; width: 100%; height: 100%; z-index: 10; }
+  </style>
 </head>
 <body>
+  <div id="i_loading">Įkeliama...</div>
   <div id="map"></div>
   <div id='i_version'></div>
   <div id="sw"><img id="i_base_img" src="map_orto.png"></div>
@@ -59,7 +63,6 @@
   <div id="i_dialogo_tekstas"></div>
   <div style="line-height: 4em;"><span id="i_dialogo_mygtukas1" class="mygt"></span><span id="i_dialogo_mygtukas2" class="mygt"></span></div>
   </div>
-  <div id="i_loading">Skaičiuojamas maršrutas. Palaukite...</div>
   <div id="i_control"></div>
   <script src="appbundle.js"></script>
 </body>

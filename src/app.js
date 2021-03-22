@@ -4,8 +4,11 @@ import './styles.css';
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
 import { getIcon } from './markers.js';
+import { showMessage, hideMessage, showTempMessage }  from './message.js';
 import packagej from '../package.json';
 const { version } = packagej;
+const cMsgLoading = 'Skaičiuojamas maršrutas. Palaukite...';
+const cMsgRouteSaved = 'Maršrutas sėkmingai įrašytas';
 
 loginScreen(init);
 
@@ -75,7 +78,8 @@ function controlRoute() {
   route.id = 'i_marsrutas';
   route.innerHTML =
   '<p style="margin-top: 1px; margin-bottom: 1px;">Pavadinimas: <input type="text" id="i_marsruto_pavadinimas"></p>'+
-  '<p><span id="i_url"></span><a id="i_download_geojson" class="mygt mygtm material-icons" href="geojson.php?id=5" download="test.geojson" target="other">download</a></p>'+
+  '<p><small><span id="i_url"></small></span> <span class="mygt mygtm" id="i_copy_url">Kopijuoti</span></p>' +
+  '<p><a id="i_download_geojson" class="mygt mygtm" href="geojson.php?id=5" download="test.geojson" target="other">Atsisiųsti maršruto geojson <span class="material-icons">download</a></p>'+
   '<div id="i_marsruto_taskai">'+
   '<i>Maršrutas tuščias. Parinkite lankytinas veitas arba spauskite ant žemėlapio, kad sukurtumėte tarpinius taškus</i>'+
   '<p>Arba: <span id="i_ikelti_marsruta" class="mygt">Įkelti maršrutą</span></p>'+
@@ -87,19 +91,32 @@ function controlRoute() {
   i_ikelti_marsruta.onclick = marsrutuSarasas;
   i_irasyti_marsruta.onclick = irasytiMarsruta;
   i_prideti_tarpini_taska.onclick = pridetiTarpiniTaska;
+  i_copy_url.onclick = actionCopyUrl;
+  i_copy_url.style.display = 'none';
+  i_download_geojson.style.display = 'none';
 } // controlRoute()
 
+function actionCopyUrl() {
+  navigator.clipboard.writeText(i_url.innerHTML);
+  showTempMessage('Maršruto nuoroda nukopijuota į iškarpinę');
+} // actionCopyUrl
+
 function setUrl(uuid) {
-  i_url.innerHTML = '<small>' + window.location.protocol + '//' +
-    window.location.host.toString() + '/route.html?uuid=' + uuid + '</small>';
+  console.log(window.location);
+  i_url.innerHTML = window.location.protocol + '//' +
+    window.location.host + window.location.pathname + 'route.html?uuid=' + uuid;
+  i_copy_url.style.display = 'inline';
+  i_download_geojson.style.display = 'inline';
 } // setUrl
 
 var pointListeners = false; // have point listeneres already been created?
 function addPointLayer() {
+console.log('1');
   var dummySource = map.getSource('taskai-src');
   if (typeof dummySource == 'undefined') {
     map.addSource('taskai-src', { 'type': 'geojson', 'data': urlTaskai });
   }
+console.log('2');
   map.addLayer({
     'id': 'taskai',
     'type': 'circle',
@@ -115,6 +132,7 @@ function addPointLayer() {
       }
     }
   });
+console.log('3');
   map.addLayer({
     'id': 'taskai-label',
     'type': 'symbol',
@@ -134,6 +152,7 @@ function addPointLayer() {
       'text-halo-color': "rgba(255, 255, 255, 0.9)"
     }
   });
+console.log('4');
   if (!pointListeners) {
     map.on('click', 'taskai', paspaustasTaskas);
     map.on('mouseenter', 'taskai', mouseEnterPoints);
@@ -597,7 +616,7 @@ function createDraw() {
   function updateRoute() {
     var poz = '';
     var count = 0;
-    i_loading.style.display = 'block';
+    showMessage(cMsgLoading);
     i_marsruto_taskai.innerHTML = '';
     var marsrutoLentele = document.createElement('div');
     //marsrutoLentele.classList.add('marsrutoLentele');
@@ -644,7 +663,8 @@ function createDraw() {
       if (idx < marsrutas.length - 1) {
         var mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'pesciomis';
-        mygtukas.innerHTML = 'Pės';
+        mygtukas.innerHTML = 'directions_walk';
+        mygtukas.classList.add('material-icons');
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'foot') {
@@ -659,7 +679,8 @@ function createDraw() {
   
         mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'dviraciu';
-        mygtukas.innerHTML = 'Dvi';
+        mygtukas.innerHTML = 'directions_bike';
+        mygtukas.classList.add('material-icons');
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'bike') {
@@ -674,7 +695,8 @@ function createDraw() {
   
         mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'masina';
-        mygtukas.innerHTML = 'Maš';
+        mygtukas.innerHTML = 'directions_car';
+        mygtukas.classList.add('material-icons');
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'car') {
@@ -689,7 +711,8 @@ function createDraw() {
   
         mygtukas = document.createElement('span');
         mygtukas.id = 'transportas' + idx + 'bekele';
-        mygtukas.innerHTML = 'Bek';
+        mygtukas.innerHTML = 'edit_road';
+        mygtukas.classList.add('material-icons');
         mygtukas.classList.add('mygt');
         mygtukas.classList.add('mygtm');
         if (el.transportas != 'offroad') {
@@ -775,10 +798,10 @@ function createDraw() {
       });
       if (issiustaUzklausu == 0) {
         addGeoJson();
-        i_loading.style.display = 'none';
+        hideMessage();
       }
     } else {
-      i_loading.style.display = 'none';
+      hideMessage();
     }
   }
   var settingsIdx;
@@ -921,7 +944,7 @@ function createDraw() {
           if (issiustaUzklausu == 0) {
             addGeoJson();
             document.getElementById('distance' + (marsrutas.length - 1)).innerHTML = Math.round(totalDistance*10)/10 + ' km';
-            i_loading.style.display = 'none';
+            hideMessage();
           }
         });
     } else {
@@ -992,6 +1015,7 @@ function createDraw() {
           setUrl(data.uuid);
         }
         marsrutoId = data.id;
+        showTempMessage(cMsgRouteSaved);
       });
   } // irasytiMarsruta
   function marsrutuSarasas() {

@@ -144,7 +144,6 @@ function actionLogin() {
   fetch('php/login.php', { method: 'POST', body: postData })
     .then(response => response.json())
     .then(data => {
-      console.log('login result=' + data.id);
       if (data.id > 0) {
         i_login_screen.remove();
         successCallback();

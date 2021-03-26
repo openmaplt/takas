@@ -102,7 +102,6 @@ function actionCopyUrl() {
 } // actionCopyUrl
 
 function setUrl(uuid) {
-  console.log(window.location);
   i_url.innerHTML = window.location.protocol + '//' +
     window.location.host + window.location.pathname + 'route.html?uuid=' + uuid;
   i_copy_url.style.display = 'inline';
@@ -960,7 +959,6 @@ function createDraw() {
       totalDistance += distance;
       distance += ' km';
       document.getElementById('distance'+(idx-1)).innerHTML = distance;
-      console.log('manual=' + distance);
       offroadAtkarpa.properties.distance = distance;
       draw.add(offroadAtkarpa);
     }
@@ -1006,7 +1004,6 @@ function createDraw() {
     fetch(phpBase + 'save_route.php', { method: 'POST', body: postData })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         if (marsrutoId == 0) {
           setUrl(data.uuid);
         }
@@ -1094,7 +1091,6 @@ function createDraw() {
   }
   function ikeltiMarsruta(e) {
     i_marsrutu_sarasas.style.display = 'none';
-    console.log(e);
     marsrutoId = e.srcElement.getAttribute('id');
     console.log(marsrutoId);
     if (marsrutoId > 0) {
@@ -1137,10 +1133,18 @@ function createDraw() {
           marsrutasGeojson.features.forEach(el => {
             coordinates = coordinates.concat(el.geometry.coordinates);
           });
-          var bounds = coordinates.reduce(function(bounds, coord) {
-            return bounds.extend(coord);
-          }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-          map.fitBounds(bounds, { padding: 20 });
+          offroad.forEach(el => {
+            if (el) {
+              coordinates = coordinates.concat(el.geometry.coordinates);
+            }
+          });
+          if (coordinates.length > 0) {
+            // only try to calculate route extent if there are any coordinates
+            var bounds = coordinates.reduce(function(bounds, coord) {
+              return bounds.extend(coord);
+            }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+            map.fitBounds(bounds, { padding: 20 });
+          }
           i_irasyti_marsruta.style.display = 'inline';
   
           updateRoute();

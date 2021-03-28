@@ -1,7 +1,7 @@
 create or replace function get_route(p_id integer) returns text as $$
 declare
 l_marsrutas json;
-l_bekele json;
+l_offroad json;
 l_taskai json;
 l_lines text = '';
 l_points text = '';
@@ -14,8 +14,8 @@ l_name text;
 l_type text;
 i int;
 begin
-  select marsrutas, bekele, taskai
-    into l_marsrutas, l_bekele, l_taskai
+  select marsrutas, offroad, taskai
+    into l_marsrutas, l_offroad, l_taskai
     from routes
    where id = p_id;
 
@@ -34,8 +34,8 @@ begin
   for i in 0..json_array_length(l_taskai)-1 loop
     raise notice '% ----> %', i, l_taskai->i;
     if l_taskai->i->>'transportas' = 'offroad' then
-      raise notice '  ====> %', (l_bekele->i+1)::jsonb - 'id';
-      l_lines = l_lines || ',' || (l_bekele->i+1)::jsonb - 'id';
+      raise notice '  ====> %', (l_offroad->i+1)::jsonb - 'id';
+      l_lines = l_lines || ',' || (l_offroad->i+1)::jsonb - 'id';
     end if;
     if l_points != '' then
       l_points = l_points || ',';
@@ -47,7 +47,7 @@ begin
     l_name = l_tmp->'pavadinimas';
     l_type = l_tmp->'tipas';
     l_points = l_points ||
-      '{"type":"Feature","properties":{"transport":' || l_transport ||
+      '{"type":"Feature","properties":{"id": ' || i+1 || ', "transport":' || l_transport ||
       ',"name":' || l_name ||
       ',"type":' || l_type ||
       '},"geometry":{"type":"Point","coordinates":[' || l_lon || ',' || l_lat || ']}}';

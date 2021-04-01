@@ -9,7 +9,6 @@ jobs:
       - uses: actions/setup-node@v1
       - run: npm install
       - run: npm run build
-      - uses: thedoctor
       - uses: thedoctor0/zip-release@master
         with:
           filename: 'release.zip'

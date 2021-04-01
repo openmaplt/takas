@@ -9,12 +9,16 @@ jobs:
       - uses: actions/setup-node@v1
       - run: npm install
       - run: npm run build
+      - uses: thedoctor
+      - uses: thedoctor0/zip-release@master
+        with:
+          filename: 'release.zip'
+          exclusions: '*.git* /*node_modules/*'
       - uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "latest"
+          pre_release: false
           title: "Development Build"
           files: |
-            dist/*
-            src/php/*
-            src/db/*
+            release.zip

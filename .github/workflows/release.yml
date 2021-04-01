@@ -9,3 +9,12 @@ jobs:
       - uses: actions/setup-node@v1
       - run: npm install
       - run: npm run build
+      - uses: actions/automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          title: "Development Build"
+          files: |
+            dist/*
+            src/php/*
+            src/db/*

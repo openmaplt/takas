@@ -26,4 +26,4 @@ jobs:
           pre_release: false
           title: "Development Build"
           files: |
-            release.zip
+            release.tar.gz

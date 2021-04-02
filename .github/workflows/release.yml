@@ -15,7 +15,7 @@ jobs:
       - run: cp -r src/php release/php
       - uses: thedoctor0/zip-release@master
         with:
-          filename: 'release.tar.gz'
+          filename: '../release.tar.gz'
           directory: 'release'
           type: 'tar'
       - run: tree -I 'node_modules*'

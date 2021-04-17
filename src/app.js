@@ -404,7 +404,10 @@ function runApp() {
                   lon: e.lngLat.lng,
                   transportas: 'foot',
                   icon: 0,
-                  colour: defaultColour }
+                  colour: defaultColour,
+                  displayed: true,
+                  shadow: -1
+                }
       marsrutas.push(poz);
       recreateMarkers(map, marsrutas);
       updateRoute();
@@ -1139,6 +1142,18 @@ function actionChangeRoutePointName() {
                 marsrutas[idx].tipas = 2;
               }
             }
+            if (!el.icon) {
+              marsrutas[idx].icon = 0;
+            }
+            if (!el.colour) {
+              marsrutas[idx].colour = defaultColour;
+            }
+            if (!el.shadow) {
+              marsrutas[idx].shadow = -1;
+            }
+            if (!el.displayed) {
+              marsrutas[idx].displayed = true;
+            }
           });
           i_marsruto_pavadinimas.value = data.pavadinimas;
           recreateMarkers(map, marsrutas);
@@ -1293,7 +1308,7 @@ function actionCreateShadow(e) {
 function actionToggleDisplay(e) {
   var idx = Number(e.srcElement.getAttribute('idx'));
   marsrutas[idx].displayed = !marsrutas[idx].displayed;
-  recreateMarkers(map, markers);
+  recreateMarkers(map, marsrutas);
   if (marsrutas[idx].displayed) {
     e.srcElement.classList.remove('mygtisj');
   } else {

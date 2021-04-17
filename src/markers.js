@@ -23,7 +23,7 @@ function createMapMarker(map, routeItem, idx) {
   markerText.className = 'marker';
   markerText.classList.add('taskuZymeklis');
   markerElement.appendChild(markerText);
-  if ((routeItem.tipas == 1) || (p_allMarkers)) {
+  if ((routeItem.tipas == 1) || (allMarkers)) {
     var labelText = document.createElement('div');
     labelText.className = 'taskuEtiketes';
     labelText.innerHTML = routeItem.pavadinimas;

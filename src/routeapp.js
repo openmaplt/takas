@@ -1,7 +1,7 @@
 import mapboxgl from '!mapbox-gl';
 import './routestyles.css';
 import { initMap, switchTo, map } from './map.js';
-import { getIcon, recreateMarkers } from './markers.js';
+import { recreateMarkers } from './markers.js';
 import packagej from '../package.json';
 const { version } = packagej;
 
@@ -11,7 +11,6 @@ var orto = false;
 var uuid;
 var marsrutas = [];
 var offroad = [];
-var zymekliai = [];
 var marsrutasGeojson;
 
 initMap(runApp);

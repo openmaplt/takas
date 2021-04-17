@@ -3,7 +3,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import './styles.css';
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
-import { createMapMarker, recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable } from './markers.js';
+import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable } from './markers.js';
 import { showMessage, hideMessage, showTempMessage }  from './message.js';
 import packagej from '../package.json';
 const { version } = packagej;
@@ -1208,20 +1208,16 @@ function moveRoutePoint(fromPos, toPos) {
   marsrutas.forEach((el, idx) => {
     var currShadow = marsrutas[idx].shadow;
     if (currShadow > 0) {
-console.log(idx, currShadow);
       if (currShadow == fromPos) {
-console.log('==');
         marsrutas[idx].shadow = toPos;
       } else if (fromPos < toPos) {
         // moved down
         if (currShadow > fromPos && currShadow <= toPos) {
-console.log('move down');
           marsrutas[idx].shadow--;
         }
       } else if (fromPos > toPos) {
         // moved up
         if (currShadow > toPos && currShadow <= fromPos) {
-console.log('move up');
           marsrutas[idx].shadow++;
         }
       }

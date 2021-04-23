@@ -3,12 +3,13 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import './styles.css';
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
-import { getIcon } from './markers.js';
+import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable } from './markers.js';
 import { showMessage, hideMessage, showTempMessage }  from './message.js';
 import packagej from '../package.json';
 const { version } = packagej;
 const cMsgLoading = 'Skaičiuojamas maršrutas. Palaukite...';
 const cMsgRouteSaved = 'Maršrutas sėkmingai įrašytas';
+const cMsgPointHasShadows = 'Šis taškas turi šešėlių, iš pradžių juos ištrinkite!';
 
 loginScreen(init);
 
@@ -250,21 +251,24 @@ function createDraw() {
     map.on('draw.selectionchange', drawSelectionchange);
   }
 } // createDraw
-  function runApp() {
-    setTimeout(function() {
-      uzpildytiKlasifikatoriu(i_tipas, 'tipas');
-      uzpildytiKlasifikatoriu(i_gentis, 'gentis');
-      uzpildytiKlasifikatoriu(i_krastas, 'krastas');
-      uzpildytiKlasifikatoriu(i_vaizdingumas, 'reiksme');
-      uzpildytiKlasifikatoriu(i_arch_reiksme, 'reiksme');
-      uzpildytiKlasifikatoriu(i_mito_reiksme, 'reiksme');
-      uzpildytiKlasifikatoriu(i_ist_reiksme, 'reiksme2');
-      uzpildytiKlasifikatoriu(i_vis_reiksme, 'vis_reiksme');
-      uzpildytiKlasifikatoriu(i_tyrimu_duomenys, 'tyrimu_duomenys');
-      uzpildytiKlasifikatoriu(i_pritaikymas_lankymui, 'pritaikymas');
-      addPointLayer();
-    }, 1000);
-  }
+
+function runApp() {
+  setTimeout(function() {
+    uzpildytiKlasifikatoriu(i_tipas, 'tipas');
+    uzpildytiKlasifikatoriu(i_gentis, 'gentis');
+    uzpildytiKlasifikatoriu(i_krastas, 'krastas');
+    uzpildytiKlasifikatoriu(i_vaizdingumas, 'reiksme');
+    uzpildytiKlasifikatoriu(i_arch_reiksme, 'reiksme');
+    uzpildytiKlasifikatoriu(i_mito_reiksme, 'reiksme');
+    uzpildytiKlasifikatoriu(i_ist_reiksme, 'reiksme2');
+    uzpildytiKlasifikatoriu(i_vis_reiksme, 'vis_reiksme');
+    uzpildytiKlasifikatoriu(i_tyrimu_duomenys, 'tyrimu_duomenys');
+    uzpildytiKlasifikatoriu(i_pritaikymas_lankymui, 'pritaikymas');
+    addPointLayer();
+    setOnMove(perkeltas);
+  }, 1000);
+} // runApp
+
   function drawSelectionchange(e) {
     setMarkersMovable(e.features.length == 0);
   }
@@ -380,7 +384,6 @@ function createDraw() {
       .then(response => response.json())
       .then(data => {
         console.log('Taškas nusiųstas');
-        console.log(data);
         map.getSource('taskai-src').setData(urlTaskai);
         var z = 14;
         if (map.getZoom() > 14) {
@@ -400,9 +403,12 @@ function createDraw() {
                   lon: e.lngLat.lng,
                   transportas: 'foot',
                   icon: 0,
-                  colour: defaultColour }
+                  colour: defaultColour,
+                  displayed: true,
+                  shadow: -1
+                }
       marsrutas.push(poz);
-      zymekliai.push(mZymeklis(poz.pavadinimas, marsrutas.length - 1, poz.lon, poz.lat));
+      recreateMarkers(map, marsrutas);
       updateRoute();
       lastLat = e.lngLat.lat;
       lastLon = e.lngLat.lng;
@@ -505,8 +511,7 @@ function createDraw() {
       kuriamMarsruta = false;
       i_prideti_marsruta.innerHTML = 'Pridėti maršrutą';
       i_prideti_taska.style.display = 'block';
-      zymekliai.forEach(el => { el.remove(); });
-      zymekliai = [];
+      removeAllMarkers();
       marsrutas = [];
       marsrutasGeojson.features = [];
       addGeoJson();
@@ -514,29 +519,6 @@ function createDraw() {
       map.getCanvas().style.cursor = '';
     }
   }
-  var zymekliai = [];
-  function mZymeklis(p_pavadinimas, p_idx, p_lon, p_lat) {
-    var markerElement = document.createElement('div');
-    var markerText = document.createElement('div');
-    markerText.innerHTML = getIcon(marsrutas[p_idx].icon, marsrutas[p_idx].colour);
-    markerText.className = 'marker';
-    markerText.classList.add('taskuZymeklis');
-    markerElement.appendChild(markerText);
-    if (marsrutas[p_idx].tipas == 1) {
-      var z_tekstas = document.createElement('div');
-      z_tekstas.className = 'taskuEtiketes';
-      z_tekstas.innerHTML = p_pavadinimas;
-      markerElement.appendChild(z_tekstas);
-    }
-    markerElement.setAttribute('id', p_idx);
-    var zymeklis = new mapboxgl.Marker({ element: markerElement,
-                                         draggable: marsrutas[p_idx].tipas == 1,
-                                         offset: [0, -5]})
-      .setLngLat([p_lon, p_lat])
-      .addTo(map);
-    zymeklis.on('dragend', perkeltas);
-    return zymeklis;
-  } // mZymeklis
   function pridetiPozicija(e) {
     map.off('click', pridetiPozicija);
     map.getCanvas().style.cursor = '';
@@ -548,13 +530,13 @@ function createDraw() {
                   lon: e.lngLat.lng,
                   transportas: 'foot',
                   icon: 0,
-                  colour: defaultColour }
+                  colour: defaultColour,
+                  displayed: true,
+                  shadow: -1
+                }
       marsrutas.push(poz);
       updateRoute();
-      var elem = document.createElement('div');
-      elem.setAttribute('kuku', 'abc');
-      var zymeklis = mZymeklis(poz.pavadinimas, marsrutas.length - 1, poz.lon, poz.lat);
-      zymekliai.push(zymeklis);
+      recreateMarkers(map, marsrutas);
       i_irasyti_marsruta.style.display = 'inline';
       map.getCanvas().style.cursor = '';
     }
@@ -563,13 +545,15 @@ function createDraw() {
     var i = Number(e.target._element.getAttribute('id'));
     marsrutas[i].lat = e.target._lngLat.lat;
     marsrutas[i].lon = e.target._lngLat.lng;
+    marsrutas.forEach((el, idx) => {
+      if (el.shadow == i) {
+        marsrutas[idx].lat = e.target._lngLat.lat;
+        marsrutas[idx].lon = e.target._lngLat.lng;
+      }
+    });
     updateRoute();
   }
-  function setMarkersMovable(p_movable) {
-    zymekliai.forEach(el => {
-      el.setDraggable(p_movable);
-    });
-  } // setMarkersMovable
+
   function round5(f) {
     return Math.round(f * 100000) / 100000;
   }
@@ -638,7 +622,11 @@ function createDraw() {
   
       // add point name
       var name = document.createElement('span');
-      name.innerHTML = el.pavadinimas;
+      if (el.shadow == -1) {
+        name.innerHTML = el.pavadinimas;
+      } else {
+        name.innerHTML = marsrutas[el.shadow].pavadinimas + '*';
+      }
       firstLine.appendChild(name);
   
       if (el.tipas == 1) {
@@ -722,14 +710,39 @@ function createDraw() {
       }
       secondLine.appendChild(transportoTipas);
 
-      var mygtukasTrinti = document.createElement('span');
-      mygtukasTrinti.onclick = trintiMarsrutoTaska;
-      mygtukasTrinti.innerHTML = 'delete';
-      mygtukasTrinti.classList.add('material-icons');
-      mygtukasTrinti.classList.add('mygt');
-      mygtukasTrinti.classList.add('mygtm');
-      mygtukasTrinti.setAttribute('idx', idx);
-      secondLine.appendChild(mygtukasTrinti);
+      var buttonDelete = document.createElement('span');
+      buttonDelete.onclick = actionDeleteRoutePoint;
+      buttonDelete.innerHTML = 'delete';
+      buttonDelete.classList.add('material-icons');
+      buttonDelete.classList.add('mygt');
+      buttonDelete.classList.add('mygtm');
+      buttonDelete.setAttribute('idx', idx);
+      secondLine.appendChild(buttonDelete);
+  
+      if (marsrutas[idx].shadow == -1) {
+        // only original (non shadow) points can have shadows
+        // shadow point markers are never displayed
+        var buttonShadow = document.createElement('span');
+        buttonShadow.onclick = actionCreateShadow;
+        buttonShadow.innerHTML = 'copy_all';
+        buttonShadow.classList.add('material-icons');
+        buttonShadow.classList.add('mygt');
+        buttonShadow.classList.add('mygtm');
+        buttonShadow.setAttribute('idx', idx);
+        secondLine.appendChild(buttonShadow);
+  
+        var buttonDisplay = document.createElement('span');
+        buttonDisplay.onclick = actionToggleDisplay;
+        buttonDisplay.innerHTML = 'room';
+        buttonDisplay.classList.add('material-icons');
+        buttonDisplay.classList.add('mygt');
+        buttonDisplay.classList.add('mygtm');
+        if (!marsrutas[idx].displayed) {
+          buttonDisplay.classList.add('mygtisj');
+        }
+        buttonDisplay.setAttribute('idx', idx);
+        secondLine.appendChild(buttonDisplay);
+      }
   
       var buttonSettings = document.createElement('span');
       buttonSettings.onclick = actionPointSettings;
@@ -766,8 +779,8 @@ function createDraw() {
     marsrutoLentele.appendChild(emptySlot);
 
     i_marsruto_taskai.appendChild(marsrutoLentele);
+    marsrutasGeojson.features = [];
     if (count > 1) {
-      marsrutasGeojson.features = [];
       var atkarpa;
       var atkarpaPoints = [];
       draw.getAll().features.forEach(el => {
@@ -796,6 +809,7 @@ function createDraw() {
         hideMessage();
       }
     } else {
+      addGeoJson();
       hideMessage();
     }
   }
@@ -835,7 +849,7 @@ function createDraw() {
     actionSettingsCancel();
     marsrutas[settingsIdx].icon = settingsIcon;
     marsrutas[settingsIdx].colour = settingsColour;
-    perkurtiZymeklius();
+    recreateMarkers(map, marsrutas);
   } // actionSettingsAccept
   function actionSettingsIconChange(e) {
     settingsIcon = Number(e.srcElement.getAttribute('icon'));
@@ -863,28 +877,53 @@ function createDraw() {
       }
     });
   }
-  function trintiMarsrutoTaska(e) {
+  function actionDeleteRoutePoint(e) {
     var idx = Number(e.srcElement.getAttribute('idx'));
-    marsrutas.splice(idx, 1);
-    fetchDrawnPaths();
-    offroad.splice(idx+1, 1);
-    reassignOffroadIds();
-    perkurtiZymeklius();
-    updateRoute();
+    var shadowsExist = false;
+    marsrutas.forEach(el => {
+      if (el.shadow == idx) {
+        shadowsExist = true;
+      }
+    });
+    if (shadowsExist) {
+      showTempMessage(cMsgPointHasShadows);
+    } else {
+      marsrutas.splice(idx, 1);
+      fetchDrawnPaths();
+      offroad.splice(idx+1, 1);
+      marsrutas.forEach((el, i) => {
+        if (el.shadow >= 0) {
+          if (el.shadow > idx) {
+            marsrutas[i].shadow--;
+          }
+        }
+      });
+      reassignOffroadIds();
+      recreateMarkers(map, marsrutas);
+      updateRoute();
+    }
   }
   var idxt;
   function keistiMarsrutoTaskoPavadinima(e) {
     idxt = Number(e.srcElement.getAttribute('idx'));
     i_keisti_pavadinima.style.display = 'block';
     i_keisti_pavadinima_tekstas.value = marsrutas[idxt].pavadinimas;
+    i_keisti_pavadinima_tekstas.onkeypress = actionRenameKeyPress;
   } // keistiMarsrutoTaskoPavadinima
-  function actionChangeRoutePointName() {
-    marsrutas[idxt].pavadinimas = i_keisti_pavadinima_tekstas.value;
-    i_keisti_pavadinima.style.display = 'none';
-    zymekliai[idxt].remove();
-    zymekliai[idxt] = mZymeklis(marsrutas[idxt].pavadinimas, idxt, marsrutas[idxt].lon, marsrutas[idxt].lat);
-    updateRoute();
+
+function actionRenameKeyPress(e) {
+  if (e.key == 'Enter') {
+    actionChangeRoutePointName();
   }
+} // actionRenameKeyPress
+
+function actionChangeRoutePointName() {
+  marsrutas[idxt].pavadinimas = i_keisti_pavadinima_tekstas.value;
+  i_keisti_pavadinima.style.display = 'none';
+  recreateMarkers(map, marsrutas);
+  updateRoute();
+} // actionChangeRoutePointName
+
   function calculateDistance(c) {
     var distance = 0;
     var prev = [];
@@ -962,17 +1001,6 @@ function createDraw() {
       offroadAtkarpa.properties.distance = distance;
       draw.add(offroadAtkarpa);
     }
-  }
-  function perkurtiZymeklius() {
-    zymekliai.forEach(el => {
-      el.remove();
-    });
-    zymekliai = [];
-  console.log(marsrutas);
-    marsrutas.forEach((el, idx) => {
-      var zymeklis = mZymeklis(el.pavadinimas, idx, el.lon, el.lat);
-      zymekliai.push(zymeklis);
-    });
   }
   var switchIdx;
   var switchTransportas;
@@ -1092,7 +1120,6 @@ function createDraw() {
   function ikeltiMarsruta(e) {
     i_marsrutu_sarasas.style.display = 'none';
     marsrutoId = e.srcElement.getAttribute('id');
-    console.log(marsrutoId);
     if (marsrutoId > 0) {
       fetch(phpBase + 'route.php?id=' + marsrutoId)
         .then(response => response.json())
@@ -1115,18 +1142,21 @@ function createDraw() {
                 marsrutas[idx].tipas = 2;
               }
             }
-          });
-          i_marsruto_pavadinimas.value = data.pavadinimas;
-          marsrutas.forEach((el, idx) => {
             if (!el.icon) {
               marsrutas[idx].icon = 0;
             }
             if (!el.colour) {
               marsrutas[idx].colour = defaultColour;
             }
-            var zymeklis = mZymeklis(el.pavadinimas, idx, el.lon, el.lat);
-            zymekliai.push(zymeklis);
+            if (!el.shadow) {
+              marsrutas[idx].shadow = -1;
+            }
+            if (!el.displayed) {
+              marsrutas[idx].displayed = true;
+            }
           });
+          i_marsruto_pavadinimas.value = data.pavadinimas;
+          recreateMarkers(map, marsrutas);
   
           // zoom to gpx extent
           var coordinates = [];
@@ -1143,7 +1173,7 @@ function createDraw() {
             var bounds = coordinates.reduce(function(bounds, coord) {
               return bounds.extend(coord);
             }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-            map.fitBounds(bounds, { padding: 20 });
+            map.fitBounds(bounds, { padding: 50 });
           }
           i_irasyti_marsruta.style.display = 'inline';
   
@@ -1190,8 +1220,26 @@ function moveRoutePoint(fromPos, toPos) {
   marsrutas[toPos] = tmp;
   offroad[toPos+1] = tmp_offroad;
 
+  marsrutas.forEach((el, idx) => {
+    var currShadow = marsrutas[idx].shadow;
+    if (currShadow > 0) {
+      if (currShadow == fromPos) {
+        marsrutas[idx].shadow = toPos;
+      } else if (fromPos < toPos) {
+        // moved down
+        if (currShadow > fromPos && currShadow <= toPos) {
+          marsrutas[idx].shadow--;
+        }
+      } else if (fromPos > toPos) {
+        // moved up
+        if (currShadow > toPos && currShadow <= fromPos) {
+          marsrutas[idx].shadow++;
+        }
+      }
+    }
+  });
   reassignOffroadIds();
-  perkurtiZymeklius();
+  recreateMarkers(map, marsrutas);
   updateRoute();
 } // moveRoutePoint
 
@@ -1242,3 +1290,28 @@ function eventDragOver(e) {
     e.classList.add('dropPosition');
   }
 }
+
+function actionCreateShadow(e) {
+  var idx = Number(e.srcElement.getAttribute('idx'));
+  fetchDrawnPaths();
+  marsrutas.push({});
+  for (var i=marsrutas.length-1; i>idx+1; i--) {
+    Object.assign(marsrutas[i], marsrutas[i-1]);
+  }
+  Object.assign(marsrutas[idx+1], marsrutas[idx]);
+  marsrutas[idx+1].shadow = idx;
+  reassignOffroadIds();
+  recreateMarkers(map, marsrutas);
+  updateRoute();
+} // actionCreateShadow
+
+function actionToggleDisplay(e) {
+  var idx = Number(e.srcElement.getAttribute('idx'));
+  marsrutas[idx].displayed = !marsrutas[idx].displayed;
+  recreateMarkers(map, marsrutas);
+  if (marsrutas[idx].displayed) {
+    e.srcElement.classList.remove('mygtisj');
+  } else {
+    e.srcElement.classList.add('mygtisj');
+  }
+} // actionToggleDisplay

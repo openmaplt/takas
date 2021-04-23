@@ -3,6 +3,8 @@ const { version } = packagej;
 
 var successCallback;
 var hash;
+var i_username; // define these manually as browser needs names "username" and
+var i_password; // "password" for password saving functionality to work properly
 function loginScreen(callback) {
   successCallback = callback;
   var login = document.createElement('div');
@@ -25,8 +27,8 @@ function loginScreen(callback) {
       '<h1>Takas</h1>' +
       '<p><i>' + version + '</i></p>' +
       '<p>Prisijunkite:</p>' +
-      '<table style="width:100%"><tr><td style="text-align: right">Vardas:</td><td><input type="text" id="i_username"></td></tr>' +
-      '<tr><td style="text-align: right">Slaptažodis:</td><td><input type="password" id="i_password"></td></tr></table>' +
+      '<form><table style="width:100%"><tr><td style="text-align: right">Vardas:</td><td><input type="text" id="username"></td></tr>' +
+      '<tr><td style="text-align: right">Slaptažodis:</td><td><input type="password" id="password"></td></tr></table></form>' +
       '<p id="i_error" class="error_message"></p>' +
       '<p id="i_login" class="mygt">Prisijungti</p>' +
       '<p>Neturite paskyros? - <a href="#" id="i_register">Prisiregistruokite</a>.</p>' +
@@ -34,6 +36,8 @@ function loginScreen(callback) {
       '<p>Visi bandymo paskyros naudotojai mato (ir gali keisti bei trinti) vieni kitų maršrutus.</p>' +
       '<p>Bandomieji maršrutai gali būti neperspėjus ištrinti praėjus mėnesiui nuo paskutinio maršruto panaudojimo.</p>' +
       '<p id="i_test" class="mygt">Prisijungti bandomąja paskyra</p>';
+    i_username = document.getElementById('username');
+    i_password = document.getElementById('password');
     i_test.onclick = actionLoginTest;
     i_register.onclick = actionRegisterScreen;
     i_login.onclick = actionLogin;

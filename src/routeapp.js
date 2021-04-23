@@ -1,7 +1,7 @@
 import mapboxgl from '!mapbox-gl';
 import './routestyles.css';
 import { initMap, switchTo, map } from './map.js';
-import { getIcon } from './markers.js';
+import { recreateMarkers } from './markers.js';
 import packagej from '../package.json';
 const { version } = packagej;
 
@@ -11,7 +11,6 @@ var orto = false;
 var uuid;
 var marsrutas = [];
 var offroad = [];
-var zymekliai = [];
 var marsrutasGeojson;
 
 initMap(runApp);
@@ -20,7 +19,7 @@ function runApp() {
   const urlParams = new URLSearchParams(window.location.search);
   uuid = urlParams.get('uuid');
   if (uuid) {
-    ikelti();
+    loadRoute();
   }
 };
 
@@ -37,25 +36,6 @@ function switchBase() {
     var dummy = setTimeout(addGeoJson, 100);
   }
 } // switchBase
-
-function mZymeklis(p_pavadinimas, p_idx, p_lon, p_lat) {
-  var zzz = document.createElement('div');
-  var ttt = document.createElement('div');
-  ttt.innerHTML = getIcon(marsrutas[p_idx].icon, marsrutas[p_idx].colour);
-  ttt.className = 'marker';
-  ttt.classList.add('taskuZymeklis');
-  zzz.appendChild(ttt);
-  //if (marsrutas[p_idx].tipas == 1) {
-  var z_tekstas = document.createElement('div');
-  z_tekstas.className = 'taskuEtiketes';
-  z_tekstas.innerHTML = p_pavadinimas;
-  zzz.appendChild(z_tekstas);
-  //}
-  var zymeklis = new mapboxgl.Marker({element: zzz, offset: [0, -5]})
-    .setLngLat([p_lon, p_lat])
-    .addTo(map);
-  return zymeklis;
-} // mZymeklis
 
 function addGeoJson() {
   var mapLayer = map.getLayer('route');
@@ -158,7 +138,7 @@ function addGeoJson() {
   }, orto ? "label-road" : "topo_sym"); // addLayer
 } // addGeoJson
 
-function ikelti() {
+function loadRoute() {
 fetch('php/m.php?uuid=' + uuid)
   .then(response => response.json())
   .then(data => {
@@ -174,17 +154,7 @@ fetch('php/m.php?uuid=' + uuid)
     } else {
       offroad = [];
     }
-    //i_marsruto_pavadinimas.value = data.pavadinimas;
-    marsrutas.forEach((el, idx) => {
-      if (!el.icon) {
-        marsrutas[idx].icon = 0;
-      }
-      if (!el.colour) {
-        marsrutas[idx].colour = '#55ff55';
-      }
-      var zymeklis = mZymeklis(el.pavadinimas, idx, el.lon, el.lat);
-      zymekliai.push(zymeklis);
-    });
+    recreateMarkers(map, marsrutas);
 
     // zoom to gpx extent
     var coordinates = [];
@@ -194,7 +164,7 @@ fetch('php/m.php?uuid=' + uuid)
     var bounds = coordinates.reduce(function(bounds, coord) {
       return bounds.extend(coord);
     }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-    map.fitBounds(bounds, { padding: 20 });
+    map.fitBounds(bounds, { padding: 50 });
 
     addGeoJson();
   });

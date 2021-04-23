@@ -61,7 +61,6 @@ function recreateMarkers(map, marsrutas) {
 
 function removeAllMarkers() {
   mapMarkers.forEach(el => {
-    console.log(el);
     if (el) {
       el.remove();
     }

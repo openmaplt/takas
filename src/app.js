@@ -384,7 +384,6 @@ function runApp() {
       .then(response => response.json())
       .then(data => {
         console.log('Taškas nusiųstas');
-        console.log(data);
         map.getSource('taskai-src').setData(urlTaskai);
         var z = 14;
         if (map.getZoom() > 14) {
@@ -780,8 +779,8 @@ function runApp() {
     marsrutoLentele.appendChild(emptySlot);
 
     i_marsruto_taskai.appendChild(marsrutoLentele);
+    marsrutasGeojson.features = [];
     if (count > 1) {
-      marsrutasGeojson.features = [];
       var atkarpa;
       var atkarpaPoints = [];
       draw.getAll().features.forEach(el => {
@@ -810,6 +809,7 @@ function runApp() {
         hideMessage();
       }
     } else {
+      addGeoJson();
       hideMessage();
     }
   }

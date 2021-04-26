@@ -90,7 +90,7 @@ function controlRoute() {
   '</div>';
   i_control.appendChild(route);
   i_ikelti_marsruta.onclick = marsrutuSarasas;
-  i_irasyti_marsruta.onclick = irasytiMarsruta;
+  i_irasyti_marsruta.onclick = saveRoute;
   i_prideti_tarpini_taska.onclick = pridetiTarpiniTaska;
   i_copy_url.onclick = actionCopyUrl;
   i_copy_url.style.display = 'none';
@@ -587,7 +587,7 @@ function runApp() {
       var deltaLon = result & 1 ? ~(result >> 1) : result >> 1;
       lng += deltaLon;
   
-      array.push([lng * 1e-5, lat * 1e-5]);
+      array.push([lng / 100000, lat / 100000]);
     }
     return array;
   }
@@ -867,6 +867,7 @@ function runApp() {
   function fetchDrawnPaths() {
     draw.getAll().features.forEach(el => {
       offroad[el.id] = el;
+      console.log(el);
     });
     draw.deleteAll();
   }
@@ -947,6 +948,7 @@ function actionChangeRoutePointName() {
     });
     return distance;
   } // calculateDistance
+
   var totalDistance;
   function skaiciuotiAtkarpa(taskai, taskaiPoints, transportas, idx) {
     map.getCanvas().style.cursor = '';
@@ -964,11 +966,13 @@ function actionChangeRoutePointName() {
           var distance = Math.round(calculateDistance(coords)*10)/10;
           totalDistance += distance;
           distance += ' km';
-          var naujaAtkarpa = { "type":"Feature",
-            "properties": { "transport": transportas, "distance":  distance },
-            "geometry":{
-              "type":"LineString",
-              "coordinates": coords
+          var naujaAtkarpa = {
+            id: idx,
+            type:"Feature",
+            properties: { "id": idx, "transport": transportas, "distance":  distance },
+            geometry:{
+              type:"LineString",
+              coordinates: coords
             }
           }
           document.getElementById('distance'+(idx-1)).innerHTML = distance;
@@ -986,13 +990,14 @@ function actionChangeRoutePointName() {
         offroad[idx] = {
           id: idx,
           type:"Feature",
-          properties: { "transport": transportas },
+          properties: { "id": idx, "transport": transportas },
           geometry:{
-            "type":"LineString",
-            "coordinates": taskaiPoints
+            type:"LineString",
+            coordinates: taskaiPoints
           }
         };
       }
+      offroad[idx].properties.id = idx;
       var offroadAtkarpa = offroad[idx];
       var distance = Math.round(calculateDistance(offroadAtkarpa.geometry.coordinates)*10)/10;
       totalDistance += distance;
@@ -1017,28 +1022,40 @@ function actionChangeRoutePointName() {
       i_irasyti_marsruta.style.display = 'inline';
     }
   }
-  var marsrutoId;
-  function irasytiMarsruta() {
-    /* TODO: Šitą reikėtų daryti tik tada, kai baigiama KEISTI kokią nors bekelę */
-    draw.getAll().features.forEach(el => {
-      offroad[el.id] = el;
+
+var marsrutoId;
+function saveRoute() {
+  /* TODO: This has to be done only when we finish CHANGING some offroad */
+  draw.getAll().features.forEach(el => {
+    for (var i=0; i<el.geometry.coordinates.length; i++) {
+      // round coordinate values to 5 digits after comma
+      // as there is no point to have more precision
+      el.geometry.coordinates[i][0] = round5(el.geometry.coordinates[i][0]);
+      el.geometry.coordinates[i][1] = round5(el.geometry.coordinates[i][1]);
+    }
+    offroad[el.id] = el;
+  });
+  const postData = new FormData();
+  postData.append('pavadinimas', i_marsruto_pavadinimas.value);
+  postData.append('marsrutas', JSON.stringify(marsrutasGeojson));
+  for (var i=0; i<marsrutas.length; i++) {
+    marsrutas[i].lat = round5(marsrutas[i].lat);
+    marsrutas[i].lon = round5(marsrutas[i].lon);
+  }
+  postData.append('taskai', JSON.stringify(marsrutas));
+  postData.append('offroad', JSON.stringify(offroad));
+  postData.append('id', marsrutoId);
+  fetch(phpBase + 'save_route.php', { method: 'POST', body: postData })
+    .then(response => response.json())
+    .then(data => {
+      if (marsrutoId == 0) {
+        setUrl(data.uuid);
+      }
+      marsrutoId = data.id;
+      showTempMessage(cMsgRouteSaved);
     });
-    const postData = new FormData();
-    postData.append('pavadinimas', i_marsruto_pavadinimas.value);
-    postData.append('marsrutas', JSON.stringify(marsrutasGeojson));
-    postData.append('taskai', JSON.stringify(marsrutas));
-    postData.append('offroad', JSON.stringify(offroad));
-    postData.append('id', marsrutoId);
-    fetch(phpBase + 'save_route.php', { method: 'POST', body: postData })
-      .then(response => response.json())
-      .then(data => {
-        if (marsrutoId == 0) {
-          setUrl(data.uuid);
-        }
-        marsrutoId = data.id;
-        showTempMessage(cMsgRouteSaved);
-      });
-  } // irasytiMarsruta
+} // saveRoute
+
   function marsrutuSarasas() {
     i_marsrutu_sarasas.innerHTML = '';
     i_marsrutu_sarasas.style.display = 'block';
@@ -1055,7 +1072,7 @@ function actionChangeRoutePointName() {
           elem_p.setAttribute('id', el.id);
           elem_p.classList.add('sarasoElementas');
           elem_p.innerHTML = el.pavadinimas;
-          elem_p.onclick = ikeltiMarsruta;
+          elem_p.onclick = loadRoute;
           elem.appendChild(elem_p);
           var elem_t = document.createElement('span');
           elem_t.setAttribute('id', el.id);
@@ -1070,7 +1087,7 @@ function actionChangeRoutePointName() {
         elem.setAttribute('id', 0);
         elem.classList.add('sarasoElementas');
         elem.innerHTML = '<i>Uždaryti</i>';
-        elem.onclick = ikeltiMarsruta;
+        elem.onclick = loadRoute;
         i_marsrutu_sarasas.appendChild(elem);
       });
   } // marsrutuSarasas
@@ -1117,70 +1134,72 @@ function actionChangeRoutePointName() {
     updateRoute();
     i_irasyti_marsruta.style.display = 'inline';
   }
-  function ikeltiMarsruta(e) {
-    i_marsrutu_sarasas.style.display = 'none';
-    marsrutoId = e.srcElement.getAttribute('id');
-    if (marsrutoId > 0) {
-      fetch(phpBase + 'route.php?id=' + marsrutoId)
-        .then(response => response.json())
-        .then(data => {
-          marsrutasGeojson = JSON.parse(data.marsrutas);
-          marsrutas = JSON.parse(data.taskai);
-          if (data.offroad) {
-            offroad = JSON.parse(data.offroad);
-          } else {
-            offroad = [];
+
+function loadRoute(e) {
+  i_marsrutu_sarasas.style.display = 'none';
+  marsrutoId = e.srcElement.getAttribute('id');
+  if (marsrutoId > 0) {
+    fetch(phpBase + 'route.php?id=' + marsrutoId)
+      .then(response => response.json())
+      .then(data => {
+        marsrutasGeojson = JSON.parse(data.marsrutas);
+        marsrutas = JSON.parse(data.taskai);
+        if (data.offroad) {
+          offroad = JSON.parse(data.offroad);
+        } else {
+          offroad = [];
+        }
+        setUrl(data.uuid);
+        i_download_geojson.href = phpBase + 'geojson.php?id=' + marsrutoId;
+        // Data migration
+        marsrutas.forEach((el, idx) => {
+          if (!el.tipas) {
+            if (el.pavadinimas == 'Pozicija') {
+              marsrutas[idx].tipas = 1;
+            } else {
+              marsrutas[idx].tipas = 2;
+            }
           }
-          setUrl(data.uuid);
-          i_download_geojson.href = phpBase + 'geojson.php?id=' + marsrutoId;
-          // Duomenų migracija
-          marsrutas.forEach((el, idx) => {
-            if (!el.tipas) {
-              if (el.pavadinimas == 'Pozicija') {
-                marsrutas[idx].tipas = 1;
-              } else {
-                marsrutas[idx].tipas = 2;
-              }
-            }
-            if (!el.icon) {
-              marsrutas[idx].icon = 0;
-            }
-            if (!el.colour) {
-              marsrutas[idx].colour = defaultColour;
-            }
-            if (!el.shadow) {
-              marsrutas[idx].shadow = -1;
-            }
-            if (!el.displayed) {
-              marsrutas[idx].displayed = true;
-            }
-          });
-          i_marsruto_pavadinimas.value = data.pavadinimas;
-          recreateMarkers(map, marsrutas);
-  
-          // zoom to gpx extent
-          var coordinates = [];
-          marsrutasGeojson.features.forEach(el => {
-            coordinates = coordinates.concat(el.geometry.coordinates);
-          });
-          offroad.forEach(el => {
-            if (el) {
-              coordinates = coordinates.concat(el.geometry.coordinates);
-            }
-          });
-          if (coordinates.length > 0) {
-            // only try to calculate route extent if there are any coordinates
-            var bounds = coordinates.reduce(function(bounds, coord) {
-              return bounds.extend(coord);
-            }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
-            map.fitBounds(bounds, { padding: 50 });
+          if (!el.hasOwnProperty('icon')) {
+            marsrutas[idx].icon = 0;
           }
-          i_irasyti_marsruta.style.display = 'inline';
-  
-          updateRoute();
+          if (!el.hasOwnProperty('colour')) {
+            marsrutas[idx].colour = defaultColour;
+          }
+          if (!el.hasOwnProperty('shadow')) {
+            marsrutas[idx].shadow = -1;
+          }
+          if (!el.hasOwnProperty('displayed')) {
+            marsrutas[idx].displayed = true;
+          }
         });
-    }
+        i_marsruto_pavadinimas.value = data.pavadinimas;
+        recreateMarkers(map, marsrutas);
+  
+        // zoom to gpx extent
+        var coordinates = [];
+        marsrutasGeojson.features.forEach(el => {
+          coordinates = coordinates.concat(el.geometry.coordinates);
+        });
+        offroad.forEach(el => {
+          if (el) {
+            coordinates = coordinates.concat(el.geometry.coordinates);
+          }
+        });
+        if (coordinates.length > 0) {
+          // only try to calculate route extent if there are any coordinates
+          var bounds = coordinates.reduce(function(bounds, coord) {
+            return bounds.extend(coord);
+          }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+          map.fitBounds(bounds, { padding: 50 });
+        }
+        i_irasyti_marsruta.style.display = 'inline';
+  
+        updateRoute();
+      });
   }
+} // loadRoute
+
   function uzpildytiKlasifikatoriu(p_elementas, p_tipas) {
     fetch(phpBase + 'class.php?klase=' + p_tipas)
       .then(response => response.json())

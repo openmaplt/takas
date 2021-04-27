@@ -867,7 +867,6 @@ function runApp() {
   function fetchDrawnPaths() {
     draw.getAll().features.forEach(el => {
       offroad[el.id] = el;
-      console.log(el);
     });
     draw.deleteAll();
   }

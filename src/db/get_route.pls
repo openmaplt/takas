@@ -35,10 +35,8 @@ begin
     raise notice '% ----> %', i, l_taskai->i;
     if l_taskai->i->>'transportas' = 'offroad' then
       raise notice '  ====> %', (l_offroad->i+1)::jsonb - 'id';
-      l_lines = l_lines || ',' || (l_offroad->i+1)::jsonb - 'id';
-    end if;
-    if l_points != '' then
-      l_points = l_points || ',';
+      --l_lines = l_lines || ',' || (l_offroad->i+1)::jsonb - 'id';
+      l_lines = l_lines || ',' || (l_offroad->i+1)::text;
     end if;
     l_tmp = l_taskai->i;
     l_transport = l_tmp->'transportas';
@@ -46,11 +44,16 @@ begin
     l_lat = l_tmp->'lat';
     l_name = l_tmp->'pavadinimas';
     l_type = l_tmp->'tipas';
-    l_points = l_points ||
-      '{"type":"Feature","properties":{"id": ' || i+1 || ', "transport":' || l_transport ||
-      ',"name":' || l_name ||
-      ',"type":' || l_type ||
-      '},"geometry":{"type":"Point","coordinates":[' || l_lon || ',' || l_lat || ']}}';
+    if (l_tmp->'displayed') then
+      if l_points != '' then
+        l_points = l_points || ',';
+      end if;
+      l_points = l_points ||
+        '{"type":"Feature","properties":{"id": ' || i+1 || ', "transport":' || l_transport ||
+        ',"name":' || l_name ||
+        ',"type":' || l_type ||
+        '},"geometry":{"type":"Point","coordinates":[' || l_lon || ',' || l_lat || ']}}';
+    end if;
   end loop;
 
   l_result = '{"type":"FeatureCollection","features":[' || l_lines || ',' || l_points || ']}';

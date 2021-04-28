@@ -1,7 +1,7 @@
 import mapboxgl from '!mapbox-gl';
 import './routestyles.css';
 import { initMap, switchTo, map } from './map.js';
-import { recreateMarkers } from './markers.js';
+import { migrateOldData, recreateMarkers } from './markers.js';
 import packagej from '../package.json';
 const { version } = packagej;
 
@@ -154,6 +154,7 @@ fetch('php/m.php?uuid=' + uuid)
     } else {
       offroad = [];
     }
+    migrateOldData(marsrutas);
     recreateMarkers(map, marsrutas);
 
     // zoom to gpx extent

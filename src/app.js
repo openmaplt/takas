@@ -3,7 +3,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import './styles.css';
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
-import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable } from './markers.js';
+import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData } from './markers.js';
 import { showMessage, hideMessage, showTempMessage }  from './message.js';
 import packagej from '../package.json';
 const { version } = packagej;
@@ -24,7 +24,6 @@ var draw;
 var lastLat = 0;
 var lastLon = 0;
 var orto = false;
-var defaultColour = '#55ff55';
 var colours = [defaultColour, '#5555ff', '#222222'];
 colours.forEach(el => {
   var colour = document.createElement('span');
@@ -1150,28 +1149,7 @@ function loadRoute(e) {
         }
         setUrl(data.uuid);
         i_download_geojson.href = phpBase + 'geojson.php?id=' + marsrutoId;
-        // Data migration
-        marsrutas.forEach((el, idx) => {
-          if (!el.tipas) {
-            if (el.pavadinimas == 'Pozicija') {
-              marsrutas[idx].tipas = 1;
-            } else {
-              marsrutas[idx].tipas = 2;
-            }
-          }
-          if (!el.hasOwnProperty('icon')) {
-            marsrutas[idx].icon = 0;
-          }
-          if (!el.hasOwnProperty('colour')) {
-            marsrutas[idx].colour = defaultColour;
-          }
-          if (!el.hasOwnProperty('shadow')) {
-            marsrutas[idx].shadow = -1;
-          }
-          if (!el.hasOwnProperty('displayed')) {
-            marsrutas[idx].displayed = true;
-          }
-        });
+        migrateOldData(marsrutas);
         i_marsruto_pavadinimas.value = data.pavadinimas;
         recreateMarkers(map, marsrutas);
   

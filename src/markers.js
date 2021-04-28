@@ -6,6 +6,8 @@ markers[1] = '<svg style="width: 100px" display="block" height="41px" width="27p
 
 var onMove;
 var allMarkers = true;
+var defaultColour = '#55ff55';
+
 function setOnMove(functionOnMove) {
   onMove = functionOnMove;
   allMarkers = false;
@@ -76,4 +78,29 @@ function setMarkersMovable(p_movable) {
   });
 } // setMarkersMovable
 
-export { createMapMarker, recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable }
+function migrateOldData(p_markers) {
+  // Data migration
+  p_markers.forEach((el, idx) => {
+    if (!el.tipas) {
+      if (el.pavadinimas == 'Pozicija') {
+        p_markers[idx].tipas = 1;
+      } else {
+        p_markers[idx].tipas = 2;
+      }
+    }
+    if (!el.hasOwnProperty('icon')) {
+      p_markers[idx].icon = 0;
+    }
+    if (!el.hasOwnProperty('colour')) {
+      p_markers[idx].colour = defaultColour;
+    }
+    if (!el.hasOwnProperty('shadow')) {
+      p_markers[idx].shadow = -1;
+    }
+    if (!el.hasOwnProperty('displayed')) {
+      p_markers[idx].displayed = true;
+    }
+  });
+} // migrateOldData
+
+export { createMapMarker, recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData }

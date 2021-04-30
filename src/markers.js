@@ -103,4 +103,12 @@ function migrateOldData(p_markers) {
   });
 } // migrateOldData
 
-export { createMapMarker, recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData }
+export {
+  createMapMarker,
+  recreateMarkers,
+  setOnMove,
+  removeAllMarkers,
+  setMarkersMovable,
+  migrateOldData,
+  defaultColour
+}

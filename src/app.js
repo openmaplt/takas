@@ -3,7 +3,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw';
 import './styles.css';
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
-import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData } from './markers.js';
+import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData, defaultColour } from './markers.js';
 import { showMessage, hideMessage, showTempMessage }  from './message.js';
 import packagej from '../package.json';
 const { version } = packagej;
@@ -414,7 +414,6 @@ function runApp() {
       i_irasyti_marsruta.style.display = 'inline';
     } else {
       elementoId = e.features[0].id;
-      console.log('id='+elementoId);
       i_elementas.innerHTML = elementoId;
       i_savybes.style.display = 'block';
       i_pavadinimas.value = e.features[0].properties.pavadinimas;
@@ -459,7 +458,6 @@ function runApp() {
     postData.append('pastabos', i_pastabos.value);
     fetch(phpBase + 'edit_point.php', { method: 'POST', body: postData })
       .then(data => {
-        console.log('Taško pakeitimas nusiųstas');
         map.getSource('taskai-src').setData(urlTaskai);
       });
   }

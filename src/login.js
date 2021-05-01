@@ -65,6 +65,7 @@ function actionRegisterScreen() {
     '<tr><td>E-paštas:</td><td><input type="text" id="i_email"></td></tr></table>' +
     '<p class="error_message" id="i_error"></p>' +
     '<p id="i_register" class="mygt">Registruotis</p>';
+  i_username = document.getElementById('i_username');
 
   i_register.onclick = actionRegister;
 } // actionRegister
@@ -102,6 +103,7 @@ function changePassword() {
     '<p>Pakartokite slaptažodį: <input type="password" id="i_password_2"></p>' +
     '<p id="i_password_status" class="error_message"></p>' +
     '<p id="i_change_password" class="mygt">Nustatyti slaptažodį</p>';
+  i_password = document.getElementById('i_password');
   // TODO: Enter two passwords and then compare them
   i_change_password.onclick = actionChangePassword;
   i_password.onkeyup = actionClickPassword;

@@ -40,7 +40,7 @@ i_irasyti.onclick  = irasytiTaska;
 i_istrinti.onclick = istrintiTaska;
 i_perkelti.onclick = perkeltiTaska;
 i_uzdaryti.onclick = uzdarytiTaska;
-i_koordinates_prideti.onclick = koordinatesPrideti;
+i_koordinates_prideti.onclick = addCoordinates;
 i_koordinates_nutraukti.onclick = koordinatesNutraukti;
 i_settings_accept.onclick = actionSettingsAccept;
 i_settings_cancel.onclick = actionSettingsCancel;
@@ -367,11 +367,33 @@ function runApp() {
     map.getCanvas().style.cursor = 'crosshair';
     creatingPoint = true;
   }
-  function koordinatesPrideti() {
+
+function addCoordinates() {
+  if (!i_lat.value || !i_lon.value) {
+    showTempMessage('Reikia įvesti ir platumą, ir ilgumą!');
+    koordinatesNutraukti();
+  } else {
     var e = { lngLat: { lat: i_lat.value, lng: i_lon.value }}
-    crc = i_koordinaciu_tipas.value
-    pelePaspausta(e);
-  } // koordinatesPrideti
+    crc = i_koordinaciu_tipas.value;
+    if (
+        ((crc == 4326) && (Number(i_lat.value) > 56.5 ||
+                           Number(i_lat.value) < 53.5 ||
+                           Number(i_lon.value) > 27.0 ||
+                           Number(i_lon.value) < 20.5 ))
+        ||
+        ((crc == 3346) && (Number(i_lat.value) > 6263000 ||
+                           Number(i_lat.value) < 5968000 ||
+                           Number(i_lon.value) > 683000 ||
+                           Number(i_lon.value) < 285000 ))
+       ) {
+      showTempMessage('Netinkamos koordinatės!');
+      koordinatesNutraukti();
+    } else {
+      pelePaspausta(e);
+    }
+  }
+} // addCoordinates
+
   function koordinatesNutraukti() {
     i_tasko_koordinates.style.display = 'none';
     map.getCanvas().style.cursor = '';

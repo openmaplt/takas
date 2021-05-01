@@ -155,6 +155,9 @@ fetch('php/m.php?uuid=' + uuid)
       offroad = [];
     }
     migrateOldData(marsrutas);
+    for (var i=0; i<marsrutas.length; i++) {
+      marsrutas[i].tipas = 2; // so that markers are unmovable
+    }
     recreateMarkers(map, marsrutas);
 
     // zoom to gpx extent
@@ -169,4 +172,4 @@ fetch('php/m.php?uuid=' + uuid)
 
     addGeoJson();
   });
-}
+} // loadRoute

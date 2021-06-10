@@ -25,6 +25,7 @@ var lastLat = 0;
 var lastLon = 0;
 var orto = false;
 var colours = [defaultColour, '#5555ff', '#222222'];
+var totalDistance; // total route distance
 colours.forEach(el => {
   var colour = document.createElement('span');
   colour.innerHTML = 'ROKENROLL';
@@ -253,24 +254,25 @@ function createDraw() {
 
 function runApp() {
   setTimeout(function() {
-    uzpildytiKlasifikatoriu(i_tipas, 'tipas');
-    uzpildytiKlasifikatoriu(i_gentis, 'gentis');
-    uzpildytiKlasifikatoriu(i_krastas, 'krastas');
-    uzpildytiKlasifikatoriu(i_vaizdingumas, 'reiksme');
-    uzpildytiKlasifikatoriu(i_arch_reiksme, 'reiksme');
-    uzpildytiKlasifikatoriu(i_mito_reiksme, 'reiksme');
-    uzpildytiKlasifikatoriu(i_ist_reiksme, 'reiksme2');
-    uzpildytiKlasifikatoriu(i_vis_reiksme, 'vis_reiksme');
-    uzpildytiKlasifikatoriu(i_tyrimu_duomenys, 'tyrimu_duomenys');
-    uzpildytiKlasifikatoriu(i_pritaikymas_lankymui, 'pritaikymas');
+    fillClassifier(i_tipas, 'tipas');
+    fillClassifier(i_gentis, 'gentis');
+    fillClassifier(i_krastas, 'krastas');
+    fillClassifier(i_vaizdingumas, 'reiksme');
+    fillClassifier(i_arch_reiksme, 'reiksme');
+    fillClassifier(i_mito_reiksme, 'reiksme');
+    fillClassifier(i_ist_reiksme, 'reiksme2');
+    fillClassifier(i_vis_reiksme, 'vis_reiksme');
+    fillClassifier(i_tyrimu_duomenys, 'tyrimu_duomenys');
+    fillClassifier(i_pritaikymas_lankymui, 'pritaikymas');
     addPointLayer();
     setOnMove(perkeltas);
   }, 1000);
 } // runApp
 
-  function drawSelectionchange(e) {
-    setMarkersMovable(e.features.length == 0);
-  }
+function drawSelectionchange(e) {
+  setMarkersMovable(e.features.length == 0);
+} // drawSelectionchange
+
   function switchBase() {
     if (orto) {
       switchTo('topo');
@@ -614,6 +616,7 @@ function addCoordinates() {
   function updateRoute() {
     var poz = '';
     var count = 0;
+    totalDistance = 0;
     showMessage(cMsgLoading);
     i_marsruto_taskai.innerHTML = '';
     var marsrutoLentele = document.createElement('div');
@@ -918,6 +921,7 @@ function addCoordinates() {
         }
       });
       reassignOffroadIds();
+      offroad.splice(marsrutas.length); // remove last offroad element (and any surplus)
       recreateMarkers(map, marsrutas);
       updateRoute();
     }
@@ -943,34 +947,31 @@ function actionChangeRoutePointName() {
   updateRoute();
 } // actionChangeRoutePointName
 
-  function calculateDistance(c) {
-    var distance = 0;
-    var prev = [];
-    var first = true;
-    c.forEach(curr => {
-      if (first) {
-        first = false;
-      } else {
-  //function distance(lat1, lon1, lat2, lon2) {
-        var radlat1 = Math.PI * prev[1]/180;
-        var radlat2 = Math.PI * curr[1]/180;
-        var theta = curr[0]-prev[0];
-        var radtheta = Math.PI * theta/180;
-        var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
-        if (dist > 1) {
-          dist = 1;
-        }
-        distance += Math.acos(dist) * 6371;
+function calculateDistance(c) {
+  var distance = 0;
+  var prev = [];
+  var first = true;
+  c.forEach(curr => {
+    if (first) {
+      first = false;
+    } else {
+      var radlat1 = Math.PI * prev[1]/180;
+      var radlat2 = Math.PI * curr[1]/180;
+      var theta = curr[0]-prev[0];
+      var radtheta = Math.PI * theta/180;
+      var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+      if (dist > 1) {
+        dist = 1;
       }
-      prev = curr;
-    });
-    return distance;
-  } // calculateDistance
+      distance += Math.acos(dist) * 6371;
+    }
+    prev = curr;
+  });
+  return distance;
+} // calculateDistance
 
-  var totalDistance;
   function skaiciuotiAtkarpa(taskai, taskaiPoints, transportas, idx) {
     map.getCanvas().style.cursor = '';
-    totalDistance = 0;
     if (transportas != 'offroad') {
       issiustaUzklausu++;
       fetch('https://openmap.lt/route?' + taskai + '&type=json&instructions=false&vehicle=' + transportas)
@@ -1197,22 +1198,22 @@ function loadRoute(e) {
   }
 } // loadRoute
 
-  function uzpildytiKlasifikatoriu(p_elementas, p_tipas) {
-    fetch(phpBase + 'class.php?klase=' + p_tipas)
-      .then(response => response.json())
-      .then(data => {
+function fillClassifier(p_elementas, p_tipas) {
+  fetch(phpBase + 'class.php?klase=' + p_tipas)
+    .then(response => response.json())
+    .then(data => {
+      var o = document.createElement('option');
+      o.setAttribute('value', '0');
+      o.innerHTML = '-- nenurodyta --';
+      p_elementas.appendChild(o);
+      data.forEach(el => {
         var o = document.createElement('option');
-        o.setAttribute('value', '0');
-        o.innerHTML = '-- nenurodyta --';
+        o.setAttribute('value', el.raktas);
+        o.innerHTML = el.reiksme;
         p_elementas.appendChild(o);
-        data.forEach(el => {
-          var o = document.createElement('option');
-          o.setAttribute('value', el.raktas);
-          o.innerHTML = el.reiksme;
-          p_elementas.appendChild(o);
-        });
       });
-  } // uzpildytiKlasifikatorius
+    });
+} // fillClassifier
 
 function moveRoutePoint(fromPos, toPos) {
   console.log('move ' + fromPos + ' to ' + toPos);

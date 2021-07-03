@@ -110,5 +110,6 @@ export {
   removeAllMarkers,
   setMarkersMovable,
   migrateOldData,
-  defaultColour
+  defaultColour,
+  markers
 }

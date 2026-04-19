@@ -667,7 +667,7 @@ function skaiciuotiAtkarpa(taskai, taskaiPoints, transportas, idx) {
   map.getCanvas().style.cursor = '';
   if (transportas != 'offroad') {
     issiustaUzklausu++;
-    fetch('https://openmap.lt/route?' + taskai + '&type=json&instructions=false&vehicle=' + transportas)
+    fetch('https://api.openmap.lt/route/route?' + taskai + '&type=json&instructions=false&profile=' + transportas)
       .then(response => response.json())
       .then(data => {
         var way = decodePath(data.paths[0].points);

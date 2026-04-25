@@ -1,5 +1,5 @@
-import mapboxgl from '!mapbox-gl';
-import MapboxDraw from '@mapbox/mapbox-gl-draw';
+import maplibregl from '!maplibre-gl';
+import MapboxDraw from 'maplibre-gl-draw';
 import { showMessage, hideMessage, showTempMessage }  from './message.js';
 import { markers, recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData, defaultColour } from './markers.js';
 import { map } from './map.js';
@@ -62,7 +62,7 @@ function loadRoute(e) {
           // only try to calculate route extent if there are any coordinates
           var bounds = coordinates.reduce(function(bounds, coord) {
             return bounds.extend(coord);
-          }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+          }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
           map.fitBounds(bounds, { padding: 50 });
         }
         i_irasyti_marsruta.style.display = 'inline';

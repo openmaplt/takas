@@ -1,4 +1,4 @@
-import mapboxgl from '!mapbox-gl';
+import maplibregl from '!maplibre-gl';
 import './routestyles.css';
 import { initMap, switchTo, map } from './map.js';
 import { migrateOldData, recreateMarkers } from './markers.js';
@@ -167,7 +167,7 @@ fetch('php/m.php?uuid=' + uuid)
     });
     var bounds = coordinates.reduce(function(bounds, coord) {
       return bounds.extend(coord);
-    }, new mapboxgl.LngLatBounds(coordinates[0], coordinates[0]));
+    }, new maplibregl.LngLatBounds(coordinates[0], coordinates[0]));
     map.fitBounds(bounds, { padding: 50 });
 
     addGeoJson();

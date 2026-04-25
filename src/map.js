@@ -1,4 +1,4 @@
-import mapboxgl from '!mapbox-gl';
+import maplibregl from '!maplibre-gl';
 
 var defaultType = 'topo';
 var defaultLat = 54.76875;
@@ -124,7 +124,7 @@ function initMap(callback) {
 
   changeHashUrl();
 
-  map = new mapboxgl.Map({
+  map = new maplibregl.Map({
     container: 'map',
     style: mapData.type + '.json',
     zoom: mapData.zoom,
@@ -137,14 +137,14 @@ function initMap(callback) {
     pitch: mapData.pitch,
     attributionControl: false
   })
-    .addControl(new mapboxgl.NavigationControl(), 'top-left')
-    .addControl(new mapboxgl.GeolocateControl({
+    .addControl(new maplibregl.NavigationControl(), 'top-left')
+    .addControl(new maplibregl.GeolocateControl({
       positionOptions: {
         enableHighAccuracy: true
       },
       trackUserLocation: true
     }), 'top-left')
-    .addControl(new mapboxgl.AttributionControl(), 'bottom-left')
+    .addControl(new maplibregl.AttributionControl(), 'bottom-left')
     .on('moveend', function () {
       setMapData();
       changeHashUrl();

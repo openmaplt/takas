@@ -1,6 +1,6 @@
 {
   "name": "takas",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Maršrutų planavimo ir publikavimo priemonė",
   "private": true,
   "scripts": {
@@ -20,7 +20,7 @@
     "webpack-dev-server": "^5.2.3"
   },
   "dependencies": {
-    "@mapbox/mapbox-gl-draw": "^1.3.0",
-    "mapbox-gl": "^1.13.1"
+    "maplibre-gl": "^4.7.1",
+    "maplibre-gl-draw": "^1.4.3"
   }
 }

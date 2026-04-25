@@ -1,5 +1,17 @@
-import mapboxgl from '!mapbox-gl';
+import maplibregl from '!maplibre-gl';
 import './styles.css';
+
+function isWebGLSupported() {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl'))
+    );
+  } catch (e) {
+    return false;
+  }
+}
 import { initMap, switchTo, map } from './map.js';
 import { loginScreen } from './login.js';
 import { recreateMarkers, setOnMove, removeAllMarkers, setMarkersMovable, migrateOldData, defaultColour } from './markers.js';
@@ -38,8 +50,8 @@ i_base_img.onclick = switchBase;
 
 function init() {
   console.log('initialising map');
-  if (!mapboxgl.supported()) {
-    alert('Jūsų naršyklė nepalaiko Mapbox GL. Prašome atsinaujinti naršyklę.');
+  if (!isWebGLSupported()) {
+    alert('Jūsų naršyklė nepalaiko MapLibre GL. Prašome atsinaujinti naršyklę.');
   } else {
     initMap(runApp);
     controlInitial();

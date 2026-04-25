@@ -28,7 +28,7 @@ function createMapMarker(map, routeItem, idx) {
   if ((routeItem.tipas == 1) || (allMarkers)) {
     var labelText = document.createElement('div');
     labelText.className = 'taskuEtiketes';
-    labelText.innerHTML = routeItem.pavadinimas;
+    labelText.textContent = routeItem.pavadinimas;
     markerElement.appendChild(labelText);
   }
   markerElement.setAttribute('id', idx);

@@ -22,8 +22,9 @@ i_change_route_point_name.onclick = actionChangeRoutePointName;
 
 function setUrl(uuid) {
   routeUuid = uuid;
-  i_url.innerHTML = window.location.protocol + '//' +
+  const url = window.location.protocol + '//' +
     window.location.host + window.location.pathname + 'route.html?uuid=' + uuid;
+  i_url.textContent = url;
   i_copy_url.style.display = 'inline';
   i_download_geojson.style.display = 'inline';
 } // setUrl
@@ -326,7 +327,7 @@ function marsrutuSarasas() {
         var elem_p = document.createElement('span');
         elem_p.setAttribute('id', el.id);
         elem_p.classList.add('sarasoElementas');
-        elem_p.innerHTML = el.pavadinimas;
+        elem_p.textContent = el.pavadinimas;
         elem_p.onclick = loadRoute;
         elem.appendChild(elem_p);
         var elem_t = document.createElement('span');

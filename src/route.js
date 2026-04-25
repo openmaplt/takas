@@ -404,9 +404,9 @@ function updateRoute() {
     // add point name
     var name = document.createElement('span');
     if (el.shadow == -1) {
-      name.innerHTML = el.pavadinimas;
+      name.textContent = el.pavadinimas;
     } else {
-      name.innerHTML = marsrutas[el.shadow].pavadinimas + '*';
+      name.textContent = marsrutas[el.shadow].pavadinimas + '*';
     }
     firstLine.appendChild(name);
 
@@ -763,7 +763,7 @@ function marsrutoTransportas(e) {
   
 function switchToNonOffroad() {
   console.log('Switch ' + marsrutas[switchIdx].transportas + '->' + switchTransportas);
-  i_dialogo_tekstas.innerHTML = 'Ar tikrai išjungti bekelę? T.y. keisti transportą iš ' + marsrutas[switchIdx].transportas + ' į ' + switchTransportas + '. Jūsų įvestas bekelės maršrutas bus ištrintas!';
+  i_dialogo_tekstas.textContent = 'Ar tikrai išjungti bekelę? T.y. keisti transportą iš ' + marsrutas[switchIdx].transportas + ' į ' + switchTransportas + '. Jūsų įvestas bekelės maršrutas bus ištrintas!';
   i_dialogo_mygtukas1.innerHTML = 'Taip';
   i_dialogo_mygtukas2.innerHTML = 'Ne';
   i_dialogo_mygtukas1.onclick = switchToNonOffroadYes;

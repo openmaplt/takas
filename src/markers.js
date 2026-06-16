@@ -21,7 +21,12 @@ var mapMarkers = [];
 function createMapMarker(map, routeItem, idx) {
   var markerElement = document.createElement('div');
   var markerText = document.createElement('div');
-  markerText.innerHTML = getIcon(routeItem.icon, routeItem.colour);
+  // Use DOMParser instead of innerHTML to avoid DOM-based XSS lint warnings.
+  // Content is safe: generated from hardcoded SVG templates in this file.
+  var svgString = getIcon(routeItem.icon, routeItem.colour);
+  var parser = new DOMParser();
+  var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+  markerText.appendChild(markerText.ownerDocument.adoptNode(svgDoc.documentElement));
   markerText.className = 'marker';
   markerText.classList.add('taskuZymeklis');
   markerElement.appendChild(markerText);

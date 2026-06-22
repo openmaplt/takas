@@ -1,4 +1,5 @@
-body { margin:0; padding:0; }
+html { height: 100%; }
+body { margin:0; padding:0; height: 100%; overflow: hidden; }
 #map { position:absolute; top:0px; bottom:0px; left: 0px; right: 300px; }
 #sw { position:absolute; bottom:5px; right:305px; width: 100px; height: 70px; border: 1px solid black; }
 .mygt { background: #33cc33; border-radius: 5px; margin: 5px; cursor: pointer; padding: 10px; line-height: 3em; }
@@ -22,7 +23,21 @@ body { margin:0; padding:0; }
 #i_dialogas { position: absolute; top: 50px; left: 50px; display: none; background: white; padding: 20px; }
 .sarasoElementas:hover { background: black; color: white; }
 .sarasoElementas { padding: 5px; cursor: pointer; }
-.taskuZymeklis { width: 100px; }
+.maplibregl-marker {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+}
+.taskuZymeklis {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.taskuZymeklis svg {
+    display: block;
+    width: 27px;
+    height: 41px;
+}
 .taskuEtiketes { text-shadow: -1px 0px white,
                               -1px -1px white,
                               -1px 1px white,

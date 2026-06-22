@@ -4,7 +4,21 @@ body { margin:0; padding:0; }
 .mygt { background: #33cc33; border-radius: 5px; margin: 5px; cursor: pointer; padding: 10px; }
 #i_pavadinimas { position: absolute; top: 9px; left: 50px; background: white; border-radius: 5px; padding: 10px; border: 1px solid lightgray; }
 #i_version { position: absolute; left: 4px; bottom: 21px; z-index: 1; font-size: xx-small; }
-.taskuZymeklis { width: 100px; }
+.maplibregl-marker {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+}
+.taskuZymeklis {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+.taskuZymeklis svg {
+    display: block;
+    width: 27px;
+    height: 41px;
+}
 .taskuEtiketes { text-shadow: -1px 0px white,
                               -1px -1px white,
                               -1px 1px white,

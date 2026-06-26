@@ -14,7 +14,7 @@ body { margin:0; padding:0; height: 100%; overflow: hidden; }
 #i_savybes { position: absolute; left: 0px; bottom: 35px; background: white; display: none; border: 1px solid lightgray; border-radius: 5px; padding: 5px; font-size: small;}
 #i_version { position: absolute; left: 4px; bottom: 21px; z-index: 1; font-size: xx-small; }
 #i_tasko_koordinates { position: absolute; left: 50px; top: 10px; z-index: 1; background: white; padding: 10px; display: none; }
-#i_marsrutu_sarasas { position: absolute; left: 50px; top: 200px; z-index: 1; background: white; padding: 10px; display: none; }
+#i_marsrutu_sarasas { position: absolute; left: 50px; top: 200px; z-index: 1; background: white; padding: 10px; max-height: calc(100vh - 270px); overflow-y: auto; display: none; }
 #i_irasyti_marsruta { display: none; }
 #i_keisti_pavadinima { top: 10px; left: 50px; position: absolute; display: none; }
 .hover { cursor: pointer; }

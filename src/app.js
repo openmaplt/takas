@@ -307,12 +307,12 @@ function fillClassifier(p_elementas, p_tipas) {
     .then(data => {
       var o = document.createElement('option');
       o.setAttribute('value', '0');
-      o.innerHTML = '-- nenurodyta --';
+      o.textContent = '-- nenurodyta --';
       p_elementas.appendChild(o);
       data.forEach(el => {
         var o = document.createElement('option');
         o.setAttribute('value', el.raktas);
-        o.innerHTML = el.reiksme;
+        o.textContent = el.reiksme;
         p_elementas.appendChild(o);
       });
     });

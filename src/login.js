@@ -17,11 +17,16 @@ function loginScreen(callback) {
   document.body.appendChild(login);
   i_loading.style.display = 'none';
 
-  // Check if hash was provided to change password
+  // Check if hash was provided to change password (registration: 36-char UUID)
+  // or to recover password (recovery: 64-char SHA-256 linkHash)
   if (window.location.hash.length == 37) {
     hash = window.location.hash.substring(1);
     window.location.hash = '';
     changePassword();
+  } else if (window.location.hash.length == 65) {
+    hash = window.location.hash.substring(1);
+    window.location.hash = '';
+    recoverPassword();
   } else {
     i_login_content.innerHTML = '<p>Maršrutų planavimo sistema</p>' +
       '<h1>Takas</h1>' +
@@ -32,6 +37,7 @@ function loginScreen(callback) {
       '<p id="i_error" class="error_message"></p>' +
       '<p id="i_login" class="mygt">Prisijungti</p>' +
       '<p>Neturite paskyros? - <a href="#" id="i_register">Prisiregistruokite</a>.</p>' +
+      '<p>Pamiršote slaptažodį? - <a href="#" id="i_recover">Atstatykite jį</a>.</p>' +
       '<p>Arba prisijunkite bendra <b>bandymo paskyra</b>:</p>' +
       '<p>Visi bandymo paskyros naudotojai mato (ir gali keisti bei trinti) vieni kitų maršrutus.</p>' +
       '<p>Bandomieji maršrutai gali būti neperspėjus ištrinti praėjus mėnesiui nuo paskutinio maršruto panaudojimo.</p>' +
@@ -40,6 +46,7 @@ function loginScreen(callback) {
     i_password = document.getElementById('password');
     i_test.onclick = actionLoginTest;
     i_register.onclick = actionRegisterScreen;
+    i_recover.onclick = actionRecoverScreen;
     i_login.onclick = actionLogin;
   }
 } // loginScreen
@@ -68,7 +75,7 @@ function actionRegisterScreen() {
   i_username = document.getElementById('i_username');
 
   i_register.onclick = actionRegister;
-} // actionRegister
+} // actionRegisterScreen
 
 function actionRegister() {
   const postData = new FormData();
@@ -95,6 +102,35 @@ function actionRegister() {
     });
 } // actionRegister
 
+function actionRecoverScreen() {
+  i_login_content.innerHTML = '<h1>Slaptažodžio atstatymas</h1>' +
+    '<table><tr><td>E-pašto adresas:</td><td><input type="text" id="i_email"></td></tr></table>' +
+    '<p id="i_recover" class="mygt">Išsiųsti pakeitimo nuorodą</p>';
+  i_username = document.getElementById('i_username');
+
+  i_recover.onclick = actionRecover;
+} // actionRecoverScreen
+
+function actionRecover() {
+  const postData = new FormData();
+  postData.append('email', i_email.value);
+  postData.append('host', window.location.protocol + '//' + window.location.host + window.location.pathname);
+  fetch('php/recover.php', { method: 'POST', body: postData })
+    .then(response => response.json())
+    .then(data => {
+      // data.id should be 1, but who cares...
+      console.log('Recover completed, result=' + data.result);
+      console.log('hash=' + data.hash);
+      if (data.result == 0) {
+        i_login_content.innerHTML = '<h1>Slaptažodžio atstatymas</h1>' +
+          '<p>Slaptažodžio atstatymo prašymas išsiųstas.</p>' +
+          '<p>Jei nurodėte teisingą e-pašto adresą, Netrukus į nurodytą e-pašto dėžutę gausite laišką su slaptažodžio keitimo nuoroda.</p>' +
+          '<p>Paspauskite gautą nuorodą, o šį langą galite uždaryti.</p>' +
+          '<p><b>Pastaba:</b> jei laiško nematote, paieškokite savo šlamšto aplanke.</p>';
+      }
+    });
+} // actionRecover
+
 function changePassword() {
   console.log('change password');
   i_login_content.innerHTML = '<h1>Naujas slaptažodis</h1>' +
@@ -104,11 +140,44 @@ function changePassword() {
     '<p id="i_password_status" class="error_message"></p>' +
     '<p id="i_change_password" class="mygt">Nustatyti slaptažodį</p>';
   i_password = document.getElementById('i_password');
-  // TODO: Enter two passwords and then compare them
   i_change_password.onclick = actionChangePassword;
   i_password.onkeyup = actionClickPassword;
   i_password_2.onkeyup = actionClickPassword;
 } // changePassword
+
+function recoverPassword() {
+  i_login_content.innerHTML = '<h1>Naujas slaptažodis</h1>' +
+    '<p>Įveskite savo <b>naują</b> slaptažodį</p>' +
+    '<p>Naujas slaptažodis: <input type="password" id="i_password"></p>' +
+    '<p>Pakartokite slaptažodį: <input type="password" id="i_password_2"></p>' +
+    '<p id="i_password_status" class="error_message"></p>' +
+    '<p id="i_change_password" class="mygt">Nustatyti slaptažodį</p>';
+  i_password = document.getElementById('i_password');
+  i_change_password.onclick = actionRecoverPassword;
+  i_password.onkeyup = actionClickPassword;
+  i_password_2.onkeyup = actionClickPassword;
+} // recoverPassword
+
+function actionRecoverPassword() {
+  if ((i_password.value.length > 0) &&
+      (i_password.value == i_password_2.value)) {
+    const postData = new FormData();
+    postData.append('hash', hash);
+    postData.append('password', i_password.value);
+    fetch('php/recover_password.php', { method: 'POST', body: postData })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result < 0) {
+          i_password_status.textContent = data.result == -2
+            ? 'Nuoroda nebegalioja. Prašykite naujos slaptažodžio keitimo nuorodos.'
+            : 'Klaida. Bandykite dar kartą.';
+        } else {
+          i_login_screen.remove();
+          loginScreen(successCallback);
+        }
+      });
+  }
+} // actionRecoverPassword
 
 function actionClickPassword() {
   if ((i_password.value.length > 0) &&

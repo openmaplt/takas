@@ -1,4 +1,6 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
 header('Content-Type: application/json');
 if (isset($_POST['username']) && isset($_POST['email'])) {
   $config = require './config.php';
@@ -8,12 +10,23 @@ if (isset($_POST['username']) && isset($_POST['email'])) {
   $row = pg_fetch_assoc($res);
   echo json_encode(array("result" => $row['result'], "hash" => $row['hash']));
   if ($row['result'] == 0) {
-    mail($_POST['email'],
-      "Registracija į Taką",
-      "Jūs sėkmingai pradėjote registraciją į maršrutų planavimo sistemą Takas.\n" .
-      "Pabaikite registraciją adresu:\n" .
-      $_POST['host'] . "#" . $row['hash']
-    );
+    $smtp = $config['smtp'];
+    $mail = new PHPMailer(true);
+    $mail->isSMTP();
+    $mail->Host       = $smtp['host'];
+    $mail->Port       = $smtp['port'];
+    $mail->SMTPAuth   = true;
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+    $mail->Username   = $smtp['username'];
+    $mail->Password   = $smtp['password'];
+    $mail->CharSet    = 'UTF-8';
+    $mail->setFrom($smtp['from'], $smtp['from_name']);
+    $mail->addAddress($_POST['email']);
+    $mail->Subject = "Registracija į Taką";
+    $mail->Body    = "Jūs sėkmingai pradėjote registraciją į maršrutų planavimo sistemą Takas.\n" .
+                     "Pabaikite registraciją adresu:\n" .
+                     $_POST['host'] . "#" . $row['hash'];
+    $mail->send();
   }
   pg_close($link);
 } else {

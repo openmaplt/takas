@@ -953,11 +953,19 @@ function decodePath(encoded) {
 var settingsIdx;
 var settingsIcon;
 var settingsColour;
+// Keičia vietos žymeklio savybes. Prieš kviečiant šią funkciją
+// nustatomos reikšmės aukščiau esančiuose kintamuosiuose, pvz.
+// settingsColour nurodoma, kokia turi būti žymeklio spalva.
+// settingsIcon nurodomas keičiamo žymeklio numeris.
+// settingsIdx nurodomas keičiamos vietos žymeklio indeksas.
 function placeIconsSettings() {
   i_settings_icons.innerHTML = '';
+  var parser = new DOMParser();
   markers.forEach((el, idx) => {
     var icon = document.createElement('span');
-    icon.innerHTML = el.replaceAll('#colour', settingsColour);
+    var svgString = el.replaceAll('currentColor', settingsColour);
+    var svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
+    icon.appendChild(icon.ownerDocument.adoptNode(svgDoc.documentElement));
     icon.classList.add('hover');
     icon.style.paddingTop = '40px';
     icon.setAttribute('icon', idx);

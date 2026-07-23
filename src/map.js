@@ -136,22 +136,24 @@ function initMap(callback) {
     bearing: mapData.bearing,
     pitch: mapData.pitch,
     attributionControl: false
-  })
-    .addControl(new maplibregl.NavigationControl(), 'top-left')
-    .addControl(new maplibregl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true
-      },
-      trackUserLocation: true
-    }), 'top-left')
-    .addControl(new maplibregl.AttributionControl(), 'bottom-left')
-    .on('moveend', function () {
-      setMapData();
-      changeHashUrl();
-    })
-    .on('load', function() {
-      callback();
-    })
-  ;
+  });
+
+  map.addControl(new maplibregl.NavigationControl(), 'top-left');
+  map.addControl(new maplibregl.GeolocateControl({
+    positionOptions: {
+      enableHighAccuracy: true
+    },
+    trackUserLocation: true
+  }), 'top-left');
+  map.addControl(new maplibregl.AttributionControl(), 'bottom-left');
+
+  map.on('moveend', function () {
+    setMapData();
+    changeHashUrl();
+  });
+
+  map.on('load', function() {
+    callback();
+  });
 } // initMap
 export { initMap, switchTo, map };

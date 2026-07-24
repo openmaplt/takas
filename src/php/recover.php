@@ -42,7 +42,7 @@ if (isset($_POST['email'])) {
     $mail->Subject = "Slaptažodžio atstatymas";
     $mail->Body    = "Gautas slaptažodžio atstatymo prašymas.\n" .
                      "Slaptažodį galite atstatyti paspaudę šią nuorodą:\n" .
-                     $_POST['host'] . "#" . $linkHash . "\n\n" .
+                     $config['app_url'] . "#" . $linkHash . "\n\n" .
                      "Nuoroda galioja 10 minučių.\n" .
                      "Jei neprašėte atstatyti slaptažodžio, tiesiog ignoruokite šį laišką.";
     $mail->send();

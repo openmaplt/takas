@@ -17,4 +17,5 @@ return array(
         'from'     => 'sender@gmail.com',
         'from_name'=> 'Takas',
     ),
+    'app_url' => 'https://yourapp.com',
 );

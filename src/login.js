@@ -87,7 +87,6 @@ function actionRegister() {
     .then(data => {
       // data.id should be 1, but who cares...
       console.log('Registration completed, result=' + data.result);
-      console.log('hash=' + data.hash);
       if (data.result == 0) {
         i_login_content.innerHTML = '<h1>Registracija sėkminga</h1>' +
           '<p>Jūsų registracija sėkminga.</p>' +
@@ -114,13 +113,11 @@ function actionRecoverScreen() {
 function actionRecover() {
   const postData = new FormData();
   postData.append('email', i_email.value);
-  postData.append('host', window.location.protocol + '//' + window.location.host + window.location.pathname);
   fetch('php/recover.php', { method: 'POST', body: postData })
     .then(response => response.json())
     .then(data => {
       // data.id should be 1, but who cares...
       console.log('Recover completed, result=' + data.result);
-      console.log('hash=' + data.hash);
       if (data.result == 0) {
         i_login_content.innerHTML = '<h1>Slaptažodžio atstatymas</h1>' +
           '<p>Slaptažodžio atstatymo prašymas išsiųstas.</p>' +

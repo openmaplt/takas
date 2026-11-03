@@ -1,0 +1,32 @@
+# PHP backend for takas.openmap.lt.
+#
+# nginx on the host keeps serving the static site from /var/www/takas/html
+# and forwards only /php/*.php to this container over FastCGI.
+
+services:
+  php:
+    build:
+      context: ./docker
+    image: takas-php:8.4
+    container_name: takas-php
+    restart: unless-stopped
+
+    # FastCGI is unauthenticated: loopback only, never 0.0.0.0.
+    ports:
+      - "127.0.0.1:9000:9000"
+
+    volumes:
+      # Mounted at the same path as on the host, so nginx's existing
+      # SCRIPT_FILENAME and try_files both keep resolving. Read-only:
+      # nothing in takas writes into this directory.
+      - /var/www/takas/php:/var/www/takas/php:ro
+
+      # config.php reads host=/var/run/postgresql, and pg_hba.conf grants
+      # the osm user trust over the socket, so no password, no open port
+      # and no pg_hba change.
+      - /var/run/postgresql:/var/run/postgresql
+
+      - takas-sessions:/var/lib/php/sessions
+
+volumes:
+  takas-sessions:

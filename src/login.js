@@ -81,7 +81,6 @@ function actionRegister() {
   const postData = new FormData();
   postData.append('username', i_username.value);
   postData.append('email', i_email.value);
-  postData.append('host', window.location.protocol + '//' + window.location.host + window.location.pathname);
   fetch('php/register.php', { method: 'POST', body: postData })
     .then(response => response.json())
     .then(data => {

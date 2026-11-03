@@ -1,6 +1,9 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
+require_once __DIR__ . '/PHPMailer/src/Exception.php';
+require_once __DIR__ . '/PHPMailer/src/PHPMailer.php';
+require_once __DIR__ . '/PHPMailer/src/SMTP.php';
 header('Content-Type: application/json');
 if (isset($_POST['username']) && isset($_POST['email'])) {
   $config = require './config.php';
@@ -25,7 +28,7 @@ if (isset($_POST['username']) && isset($_POST['email'])) {
     $mail->Subject = "Registracija į Taką";
     $mail->Body    = "Jūs sėkmingai pradėjote registraciją į maršrutų planavimo sistemą Takas.\n" .
                      "Pabaikite registraciją adresu:\n" .
-                     $_POST['host'] . "#" . $row['hash'];
+                     $config['app_url'] . "#" . $row['hash'];
     $mail->send();
   }
   pg_close($link);
